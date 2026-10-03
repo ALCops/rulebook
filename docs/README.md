@@ -1,6 +1,6 @@
 # Rulebook user documentation
 
-Index of the user-facing documentation. Every page below is planned; the ones marked *planned* do not exist yet and are written in workpackage WP11 of [rulebook-engine](https://github.com/ALCops/rulebook-engine/tree/main/docs/workpackages).
+Index of the user-facing documentation. Every page below is planned; the ones marked *planned* do not exist yet and are written in work package WP11 of rulebook-engine ([#13](https://github.com/ALCops/rulebook-engine/issues/13)).
 
 | Page | Intent | Status |
 |---|---|---|
@@ -19,4 +19,4 @@ Index of the user-facing documentation. Every page below is planned; the ones ma
 | `migration.md` | Importing an existing ruleset tree (blob-hosted layouts, StefanMaron/RulesetFiles) into Rulebook. | planned |
 | `troubleshooting.md` | AL1033 and AL0767, unreachable endpoints, token failures, validation errors. | planned |
 
-Contributor documentation (architecture, decisions, compiler internals, AL-Go mechanics, workpackages) is in [rulebook-engine/docs](https://github.com/ALCops/rulebook-engine/tree/main/docs).
+Contributor documentation (architecture, decisions, compiler internals, AL-Go mechanics) is in [rulebook-engine/docs](https://github.com/ALCops/rulebook-engine/tree/main/docs); the work packages are issues on the [Rulebook v1 board](https://github.com/orgs/ALCops/projects/1).

@@ -1,8 +1,8 @@
 # Per-tenant extension or AppSource app?
 
-Rulebook does not ask. Every endpoint enables all analyzers, PerTenantExtensionCop and AppSourceCop included, and runs every rule at the severity its author chose. Some of those rules were written for one kind of extension only and contradict each other: a per-tenant extension must use object ids in 50000..99999 (PTE0001) while an AppSource app must not (AS0084). Your project decides which side applies, and this page shows the three ways to do that.
+Rulebook does not ask. Rulebook assumes both Microsoft cops are enabled, PerTenantExtensionCop and AppSourceCop, and runs nearly every rule at the severity its author chose. Some of those rules were written for one kind of extension only and contradict each other: a per-tenant extension must use object ids in 50000..99999 (PTE0001) while an AppSource app must not (AS0084). Your project decides which side applies, and this page shows the three ways to do that.
 
-> **Status:** written 2026-10-01 alongside decisions D21 to D23 of the engine ([rulebook-engine/docs/DECISIONS.md](https://github.com/ALCops/rulebook-engine/blob/main/docs/DECISIONS.md)). The compiler behaviour it relies on is verified in the engine's [compiler-ruleset-internals.md](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/compiler-ruleset-internals.md), section 8. The id lists below are derived from the engine's inventory families `pte-only` and `marketplace` and from its twins table; a change there is a change here.
+> **Status:** written 2026-10-01 alongside decisions [D21](https://github.com/ALCops/rulebook-engine/blob/main/docs/adr/0021-no-target-dimension-one-ladder-per-rule-both-microsoft-cops.md), [D22](https://github.com/ALCops/rulebook-engine/blob/main/docs/adr/0022-sparse-endpoints-an-id-at-its-analyzer-default-is-not-listed.md) and [D23](https://github.com/ALCops/rulebook-engine/blob/main/docs/adr/0023-twin-pairs-are-an-organization-setting.md) of the engine (index: [rulebook-engine/docs/adr](https://github.com/ALCops/rulebook-engine/blob/main/docs/adr/README.md)). The compiler behaviour it relies on is verified in the engine's [compiler-ruleset-internals.md](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/compiler-ruleset-internals.md), section 8. The id lists below are derived from the engine's inventory families `pte-only` and `marketplace` and from its twins table; a change there is a change here.
 
 ## Contents
 
@@ -35,7 +35,7 @@ What Rulebook does not do is guess which kind of extension a project is and hide
 
 Two facts make the opt-out cheap:
 
-- A Rulebook endpoint lists only the rules whose severity differs from the analyzer default. A rule at its native severity, which is what the contradicting blockers are, is not in the file at all.
+- A Rulebook endpoint lists only the rules whose severity differs from the analyzer default. A rule at its native severity, which is what the contradicting blockers are, is not in the file at all. Four rules of section 2 are the exception: PTE0023, AS0151, AS0055 and AS0057 are raised above their default and listed from Strict upward (see section 4).
 - The compiler merges `suppressWarnings` from `app.json` with the ruleset by taking the stricter of the two, after the ruleset is loaded, and "suppressed" is never stricter. So `suppressWarnings` switches off exactly the rules the endpoint does not list, and has no effect on the rules it does list.
 
 ## 2. What contradicts
@@ -52,7 +52,7 @@ Rules that fire in a project they were not written for. "From" is the first Rule
 | PTE0010 | The extension name is too long (50 characters) | Error | Essential | AppSourceCop allows 200 (AS0047). Only bites names longer than 50. |
 | PTE0013 | Entitlements cannot be defined in an extension | Error | Essential | AppSource apps may define entitlements. |
 | PTE0024 | Moving tables or fields is not allowed on per-tenant extensions | Error | Essential | AppSourceCop validates moves instead of forbidding them. |
-| PTE0023 | The enum ordinal value should be within the allowed range | Info | Recommended | Checks against the per-tenant range. |
+| PTE0023 | The enum ordinal value should be within the allowed range | Info | Recommended | Checks against the per-tenant range. Listed from Strict upward (Warning): use route C (project ruleset) there, `suppressWarnings` is a silent no-op. |
 
 ### Rules written for AppSource apps, hitting per-tenant extensions
 
@@ -61,12 +61,12 @@ Rules that fire in a project they were not written for. "From" is the first Rule
 | AS0013 | The field identifier must be within the allowed range | Error | Essential | Requires field ids inside `idRanges` and outside 50000..99999. |
 | AS0084 | The ID range assigned to the extension must be within the allowed range | Error | Recommended | Requires `idRanges` inside the partner's AppSource range and outside 50000..99999. |
 | AS0054 | The AppSourceCop configuration must specify the set of affixes | Error | Recommended | Fires in every project without `mandatoryAffixes` in `AppSourceCop.json`. Configure affixes or opt out. |
-| AS0011, AS0098, AS0079, AS0150, AS0151 | Affix rules | Error, Warning, Warning, Error, Info | Recommended | Only fire once affixes are configured. Keep them if you use affixes. |
+| AS0011, AS0098, AS0079, AS0150, AS0151 | Affix rules | Error, Warning, Warning, Error, Info | Recommended | Only fire once affixes are configured. Keep them if you use affixes. AS0151 is listed from Strict upward (Warning): use route C (project ruleset) there, `suppressWarnings` is a silent no-op. |
 | AS0051 | Manifest property is required for AppSource submission (EULA, privacy statement, help, logo, ...) | Error | Recommended | Marketplace listing fields. |
 | AS0052 | The property `url` must be set to a valid URL | Error | Recommended | Marketplace listing field. |
 | AS0092 | The app.json file must specify an Azure Application Insights resource | Warning | Recommended | Required for AppSource, optional elsewhere. |
 | AS0015 | TranslationFile must be enabled | Error | Recommended | Required for AppSource. |
-| AS0055, AS0056, AS0057 | Supported countries and their translations | Hidden, Warning, Hidden | Recommended | Need `supportedCountries` in `AppSourceCop.json`. |
+| AS0055, AS0056, AS0057 | Supported countries and their translations | Hidden, Warning, Hidden | Recommended | Need `supportedCountries` in `AppSourceCop.json`. AS0055 and AS0057 are listed from Strict upward (Info): use route C (project ruleset) there, `suppressWarnings` is a silent no-op. |
 | AS0003, AS0091 | The previous version (or its dependencies) could not be found | Error | Recommended | Only fire when a baseline is configured in `AppSourceCop.json` but cannot be loaded. Fix the baseline rather than opting out. |
 
 ### Rules that exist in both cops (twins)
@@ -127,9 +127,9 @@ List the ids in `suppressWarnings` of `app.json`. Despite the property's name, t
 }
 ```
 
-This is the simple route, and it works under one condition: **the id must not be listed in the endpoint you compile against.** The compiler loads the ruleset first and then merges `suppressWarnings` by keeping the stricter value per id, and a suppression is never stricter than anything, so a listed id keeps the endpoint's action. Rulebook endpoints list only the rules whose action differs from the analyzer default. Every rule in section 2 runs at its native severity from the level that enables it, so from that level on it is not listed and route B works. Two cases where it silently does nothing:
+This is the simple route, and it works under one condition: **the id must not be listed in the endpoint you compile against.** The compiler loads the ruleset first and then merges `suppressWarnings` by keeping the stricter value per id, and a suppression is never stricter than anything, so a listed id keeps the endpoint's action. Rulebook endpoints list only the rules whose action differs from the analyzer default. Every rule in section 2 except four runs at its native severity from the level that enables it, so from that level on it is not listed and route B works. PTE0023, AS0151, AS0055 and AS0057 are listed from Strict upward (PTE0023 and AS0151 at Warning, AS0055 and AS0057 at Info): use route C (project ruleset) there, `suppressWarnings` is a silent no-op. Two cases where it silently does nothing:
 
-- **The endpoint lists the id.** At Essential the marketplace checks (AS0084, AS0054, AS0051, ...) are explicitly `None`, so they are listed, and at Essential you do not need to suppress them anyway. If your organization overrides one of these ids in its `overrides.json`, it becomes listed and only route C works for it.
+- **The endpoint lists the id.** At Essential most marketplace checks (AS0084, AS0054, AS0051, ...) are explicitly `None`, so they are listed, and at Essential you do not need to suppress them anyway. If your organization overrides one of these ids in its `overrides.json`, it becomes listed and only route C works for it.
 - **Your project ruleset file lists the id.** A rule in the `rules` of your own ruleset file (route C) is a ruleset entry like any other.
 
 To know what an endpoint lists, open it: the URL in your skeleton file returns the JSON. The Rulebook index page shows the number of listed ids per endpoint.
@@ -166,7 +166,7 @@ This is the flexible route. A file's own `rules` overwrite whatever its includes
 
 ## 6. Ready-made lists
 
-Copy the list for your kind of project. Route B is shown for `app.json`, route C for the `rules` array of your project ruleset file. Both lists assume Recommended or higher; at Essential the marketplace checks are off already.
+Copy the list for your kind of project. Route B is shown for `app.json`, route C for the `rules` array of your project ruleset file. Both lists assume Recommended or higher; at Essential most marketplace checks are off already.
 
 ### I build per-tenant extensions
 
@@ -206,7 +206,7 @@ Keep AS0054 (and do not list it) if you use affixes: add `mandatoryAffixes` to `
 ]
 ```
 
-Drop PTE0010 from the list if your name is 50 characters or shorter; the rule then never fires.
+Drop PTE0010 from the list if your name is 50 characters or shorter; the rule then never fires. PTE0023 is listed from Strict upward: at Strict and Complete its `suppressWarnings` entry is a silent no-op, so use the route C entry there.
 
 ### Mixed organizations
 
@@ -234,8 +234,8 @@ The pair list ships with your repository as `base/twins.json` and is updated by 
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| AS0084 is still reported after adding it to `suppressWarnings`. | The endpoint lists AS0084, either because you compile against Essential (where it is `None` and therefore listed; it should not fire at all, check that the ruleset loaded) or because your organization overrides it. | Open the endpoint URL and search for the id. If it is listed, use route C. If the ruleset did not load, look for AL1033 or AL0767 in the output. |
+| AS0084 is still reported after adding it to `suppressWarnings`. | The endpoint you compile against lists AS0084 (for example because your organization overrides it), and a listed id keeps the endpoint's action. | Open the endpoint URL and search for the id. If it is listed, use route C. |
 | Both PTE0011 and AS0048 are reported for the same publisher name. | Twins; both cops are on and `twins` is `both`. | Expected with both cops. Fix the finding once, or set `twins` in the organization settings if every project runs both cops the same way. |
-| PTE0001 disappeared after I disabled AppSourceCop. | Not caused by the cop switch; check whether `twins` is `appsource` and PerTenantExtensionCop is still in your analyzer list. | Keep `twins` at `both` when projects disable a cop. |
-| Every AppSourceCop and PerTenantExtensionCop rule is suddenly reported at Error. | The ruleset failed to load (AL1033: unreachable or invalid endpoint; AL0767: external rulesets disabled) and the compiler fell back to the analyzer defaults, which Rulebook mostly follows. | Fix the endpoint or enable external rulesets in the consumer. Pipelines should treat AL1033 as a failure. |
+| PTE0011 (twin of AS0048) disappeared after I disabled AppSourceCop. | `twins` is `appsource`, so the PerTenantExtensionCop side of every pair is `None` in every endpoint; with AppSourceCop off, neither side reports. | Keep `twins` at `both` when projects disable a cop. |
+| Rules the endpoint switches off or changes (for example the marketplace checks at Essential) are suddenly reported at their default severities. | The ruleset failed to load (AL1033: unreachable or invalid endpoint; AL0767: external rulesets disabled) and every rule fell back to its analyzer default severity. | Fix the endpoint or enable external rulesets in the consumer. Pipelines should treat AL1033 as a failure. |
 | A rule I suppressed in `app.json` works in VS Code but not in the pipeline, or the other way round. | Different stages point at different endpoints; one of them lists the id. | Compare the two endpoints, or move the opt-out into the `rules` of both project ruleset files. |

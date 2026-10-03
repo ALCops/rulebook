@@ -2,7 +2,7 @@
 
 Rulebook is a GitHub template plus automation for managing the ruleset files that drive code analysis in Microsoft Dynamics 365 Business Central AL projects. One repository per organization holds the rules for every analyzer (CodeCop, UICop, AppSourceCop, PerTenantExtensionCop and the ALCops cops), publishes them as URLs, and keeps them current with workflows. AL projects point at those URLs from VS Code, AL-Go for GitHub, Azure DevOps or any other pipeline that runs the AL compiler.
 
-> **Status:** design phase. This repository holds the user-facing documentation only; the template content (rulesets, workflows, skeletons) arrives with the workpackages listed in [ALCops/rulebook-engine](https://github.com/ALCops/rulebook-engine). Nothing here is usable yet.
+> **Status:** design phase. This repository holds the user-facing documentation only; the template content (rulesets, workflows, skeletons) arrives with the work packages of [ALCops/rulebook-engine](https://github.com/ALCops/rulebook-engine), tracked on the [Rulebook v1 board](https://github.com/orgs/ALCops/projects/1). Nothing here is usable yet.
 
 ---
 
@@ -67,7 +67,7 @@ The detailed walkthroughs are listed in [docs/README.md](docs/README.md).
 
 ## 5. Documentation
 
-User documentation lives in [docs/](docs/README.md) in this repository. Architecture, decisions, references and the workpackages live in [rulebook-engine/docs](https://github.com/ALCops/rulebook-engine/tree/main/docs). When version 1.0 ships, the user documentation moves to [alcops.dev](https://alcops.dev).
+User documentation lives in [docs/](docs/README.md) in this repository. Architecture, decisions and references live in [rulebook-engine/docs](https://github.com/ALCops/rulebook-engine/tree/main/docs); the work packages are issues on the [Rulebook v1 board](https://github.com/orgs/ALCops/projects/1). When version 1.0 ships, the user documentation moves to [alcops.dev](https://alcops.dev).
 
 **Issues and contributions.** Issues are disabled on this repository. Report problems and ideas in [ALCops/rulebook-engine](https://github.com/ALCops/rulebook-engine/issues); status and order of the work are on the [Rulebook v1 board](https://github.com/orgs/ALCops/projects/1). Organizations that create their own repository from this template handle issues there as they see fit.
 
