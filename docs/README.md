@@ -1,13 +1,13 @@
 # Rulebook user documentation
 
-Index of the user-facing documentation. Every page below is planned; the ones marked *planned* do not exist yet and are written in work package WP11 of rulebook-engine ([#13](https://github.com/ALCops/rulebook-engine/issues/13)).
+Index of the user-facing documentation. The pages marked *planned* do not exist yet and are written in work package WP11 of rulebook-engine ([#13](https://github.com/ALCops/rulebook-engine/issues/13)).
 
 | Page | Intent | Status |
 |---|---|---|
 | `getting-started.md` | From "Use this template" to a live endpoint in ten minutes: settings, first publish, first AL project. | planned |
 | `concepts.md` | Levels (an ordered ladder; each level is the level it is based on plus the rules it changes), stages (one delta file each; `default` always exists and has no suffix in the URL), endpoints (sparse: only deviations from the analyzer defaults), overrides, quarantine, skeletons, the twins setting. Both levels and stages are configurable. One page to read before anything else. | planned |
 | [`pte-or-appsource.md`](pte-or-appsource.md) | Why both Microsoft cops always run, which rules contradict between per-tenant extensions and AppSource apps, and the three ways to opt out: disable a cop, `suppressWarnings` in `app.json`, a project ruleset file. Ready-made lists for both kinds of project. | written |
-| `hosting.md` | Publish targets: GitHub Pages (default), public dist repo, Azure Blob Storage, Gist. Plan requirements, custom domains, private source with public endpoints. | planned |
+| [`hosting.md`](hosting.md) | Where your endpoints are served from: GitHub Pages setup, `baseUrl`, custom domains, how fast changes arrive, what happens when the repository goes private, Publish error messages. The other targets (public dist repo, Azure Blob Storage, Gist) are planned. | written (GitHub Pages) |
 | `al-go.md` | Plug-and-play walkthrough for AL-Go for GitHub: `rulesetFile`, `enableExternalRulesets`, per-workflow settings for CI/CD and NextMajor, the GHTOKENWORKFLOW secret. | planned |
 | `azure-devops.md` | ALOps compile task inputs, BcContainerHelper parameters, custom `alc` calls. | planned |
 | `vscode.md` | `al.ruleSetPath`, when VS Code re-fetches a remote ruleset, project exceptions in the local file. | planned |
