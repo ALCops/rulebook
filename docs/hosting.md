@@ -1,6 +1,6 @@
 # Hosting your endpoints
 
-Your AL projects fetch their rules from URLs. This page explains where those URLs come from: the Publish workflow puts your endpoints, the skeletons and an index page on GitHub Pages and then checks that every URL serves what you committed.
+Your AL projects fetch their rules from URLs. This page explains where those URLs come from: the Publish workflow puts your endpoints, the skeletons, `rulebook.json` and an index page on GitHub Pages and then checks that every URL serves what you committed.
 
 > **Status:** written 2026-10-06 with the Publish work package of the engine ([WP05, #7](https://github.com/ALCops/rulebook-engine/issues/7)). GitHub Pages is the only host available in version 1. The contributor reference, with the preflight messages and the live test run, is the engine's [publish-targets.md](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/publish-targets.md).
 
@@ -15,7 +15,8 @@ Your AL projects fetch their rules from URLs. This page explains where those URL
 
 | URL | Content |
 |---|---|
-| `<baseUrl>/` | An index page: one table per stage, one row per level, with the endpoint URL, the number of rules it lists and a download link for the skeleton. |
+| `<baseUrl>/` | An index page: how to set up an AL project with the init script, then one table per stage, one row per level, with the endpoint URL, the number of rules it lists and a download link for the skeleton. |
+| `<baseUrl>/rulebook.json` | The levels and stages of your rulebook, machine-readable; the init script reads it ([al-project.md](al-project.md)). |
 | `<baseUrl>/rulesets/<level>.ruleset.json` and `<baseUrl>/rulesets/<level>.<stage>.ruleset.json` | The endpoints, exactly as committed in `rulesets/`. The `default` stage has no suffix. |
 | `<baseUrl>/skeletons/<level>.<stage>.ruleset.json` | The skeletons, with your `baseUrl` filled in. The copies in your repository keep the placeholder `{BASEURL}`. |
 
@@ -39,7 +40,7 @@ Publish never changes your repository. It publishes what is committed, and it st
    - your custom domain, if you set one (below).
 3. **Merge the change into `main`.** The Publish workflow runs on every push to `main` that changes `rulesets/`, `skeletons/`, the settings or the workflow itself, and you can run it by hand under Actions > Publish. After the first run, `baseUrl` opens the index page.
 
-Then copy a skeleton from the index page into your AL project (see the [README](../README.md#3-getting-started-planned)).
+Then set up your AL projects: the index page shows the two commands of the init script, which downloads the skeletons of a level into `.rulebook/`, one file per stage. See [al-project.md](al-project.md).
 
 ### Custom domain
 

@@ -162,7 +162,7 @@ Create a ruleset file in your project, include the endpoint, and put your opt-ou
 }
 ```
 
-This is the flexible route. A file's own `rules` overwrite whatever its includes say, up or down, so it works for every id: the contradicting blockers, a rule your organization has overridden, and any project-specific exception. One file per stage, because each stage points at a different endpoint; the `rules` array is repeated. The compiler still makes exactly one HTTP request, for the included endpoint. `justification` is ignored by the compiler and read by your colleagues.
+This is the flexible route. A file's own `rules` overwrite whatever its includes say, up or down, so it works for every id: the contradicting blockers, a rule your organization has overridden, and any project-specific exception. One file per stage, because each stage points at a different endpoint; the `rules` array is repeated, so an opt-out goes into every stage's file. The init script downloads the files of your level into `.rulebook/`; layout, settings and exceptions are in [al-project.md](al-project.md). The compiler still makes exactly one HTTP request, for the included endpoint. `justification` is ignored by the compiler and read by your colleagues.
 
 ## 6. Ready-made lists
 
