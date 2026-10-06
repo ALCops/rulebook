@@ -15,7 +15,8 @@ Your AL projects fetch their rules from URLs. This page explains where those URL
 
 | URL | Content |
 |---|---|
-| `<baseUrl>/` | An index page: one table per stage, one row per level, with the endpoint URL, the number of rules it lists and a download link for the skeleton. |
+| `<baseUrl>/` | An index page: how to set up an AL project with the init script, then one table per stage, one row per level, with the endpoint URL, the number of rules it lists and a download link for the skeleton. |
+| `<baseUrl>/rulebook.json` | The levels and stages of your rulebook, machine-readable; the init script reads it ([al-project.md](al-project.md)). |
 | `<baseUrl>/rulesets/<level>.ruleset.json` and `<baseUrl>/rulesets/<level>.<stage>.ruleset.json` | The endpoints, exactly as committed in `rulesets/`. The `default` stage has no suffix. |
 | `<baseUrl>/skeletons/<level>.<stage>.ruleset.json` | The skeletons, with your `baseUrl` filled in. The copies in your repository keep the placeholder `{BASEURL}`. |
 
