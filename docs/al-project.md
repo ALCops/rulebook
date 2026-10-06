@@ -19,7 +19,7 @@ How an AL project uses your rulebook: which files it keeps, how VS Code and the 
 
 ## 1. Layout
 
-An AL project keeps one small ruleset file per stage of your rulebook in a folder `.rulebook/` next to `app.json`, named after the stage. For a project on the `strict` level with the shipped stages:
+An AL project keeps one small ruleset file per stage of your rulebook in a folder `.rulebook/` next to `app.json`, named after the stage (the VS Code setting resolves the path against the workspace folder, section 4). For a project on the `strict` level with the shipped stages:
 
 ```
 .rulebook/default.ruleset.json   includes <baseUrl>/rulesets/strict.ruleset.json
@@ -27,7 +27,7 @@ An AL project keeps one small ruleset file per stage of your rulebook in a folde
 .rulebook/vnext.ruleset.json     includes <baseUrl>/rulesets/strict.vnext.ruleset.json
 ```
 
-Each file is a published skeleton: one include of the endpoint of its level and stage, and the project's own exceptions in `rules`. An organization that adds or removes stages gets one file per stage it publishes. The folder name `.rulebook/` and the `default` file name are fixed by the naming rules of the engine ([D28](https://github.com/ALCops/rulebook-engine/blob/main/docs/adr/0028-identity-is-one-name-the-slug-names-every-file-url-selector.md), [naming.md](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/naming.md)).
+Each file is a published skeleton: one include of the endpoint of its level and stage, and the project's own exceptions in `rules`. An organization that adds or removes stages gets one file per stage it publishes. The folder name `.rulebook/` and the file names, `default` included, come from the engine's [naming.md](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/naming.md); one file per stage is decision [D28](https://github.com/ALCops/rulebook-engine/blob/main/docs/adr/0028-identity-is-one-name-the-slug-names-every-file-url-selector.md) (open question O6, closed by it).
 
 A `.rulebook/ci.ruleset.json` with two exceptions:
 
@@ -73,7 +73,7 @@ What it does and refuses:
 
 - It reads `<baseUrl>/rulebook.json`, the list of levels and stages your site publishes, and stops with the published list when the level is not one of them, before it downloads a skeleton.
 - It stops when one of the files exists already, unless you pass `-Force`. A downloaded skeleton has an empty `rules` array, so copy your exceptions first.
-- It follows no redirect, because the compiler does not either: `-BaseUrl` must be the final address of the site.
+- It follows no redirect: `-BaseUrl` must be the final address of the site. The compiler fetches an include with one request ([compiler-ruleset-internals.md section 6](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/compiler-ruleset-internals.md#6-paths-and-urls)), and the engine treats a redirect as a failure for that reason (code-derived; a redirecting site was not tried with the compiler).
 - It checks every skeleton (one include, the endpoint of its level and stage) and writes nothing until all downloads and checks have passed. The files are written exactly as the site serves them, so they are the same files a manual download gives.
 - It prints the settings for VS Code and AL-Go and never changes a settings file.
 
@@ -89,10 +89,12 @@ The script lives in the engine and is served from its `main` branch until the `v
 |---|---|---|
 | VS Code | `al.ruleSetPath` in `.vscode/settings.json` | `.rulebook/default.ruleset.json` (relative to the workspace folder) |
 | VS Code | `al.enableExternalRulesets` | default `true`; leave it |
-| AL-Go for GitHub | `rulesetFile` in `.AL-Go/settings.json` | `.rulebook/ci.ruleset.json` |
+| AL-Go for GitHub | `rulesetFile` in `.AL-Go/settings.json` | `.rulebook/ci.ruleset.json` (see the note below) |
 | AL-Go for GitHub | `enableExternalRulesets` | `true` |
-| AL-Go, next major | `rulesetFile` in `.github/NextMajor.settings.json` | `.rulebook/vnext.ruleset.json` |
+| AL-Go, next major | `rulesetFile` in `.github/NextMajor.settings.json` | `.rulebook/vnext.ruleset.json` (see the note below) |
 | `alc` | `/ruleset:<path>` and `/enableexternalrulesets` | the file of the stage; external rulesets are **off** by default on `alc` |
+
+The VS Code row was observed in the WP06 live run: `.rulebook/default.ruleset.json` relative to the workspace folder. The AL-Go rows give the setting names and the recommended files; what AL-Go resolves a relative `rulesetFile` against (the repository root or the project folder) is not verified here and belongs to the AL-Go walkthrough (WP11).
 
 Sources: [compiler-ruleset-internals.md section 9](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/compiler-ruleset-internals.md#9-consumer-flags), the [AL-Go settings](https://github.com/microsoft/AL-Go/blob/main/Scenarios/settings.md) and Microsoft Learn's [AL extension configuration](https://learn.microsoft.com/dynamics365/business-central/dev-itpro/developer/devenv-al-extension-configuration).
 
@@ -113,19 +115,19 @@ An exception is an entry in `rules` of the stage's file:
 
 `suppressWarnings` in `app.json` is merged after the ruleset, with strictest-wins semantics ([compiler-ruleset-internals.md section 8](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/compiler-ruleset-internals.md#8-how-the-ruleset-combines-with-other-inputs)). Because `None` is never the strictest, it cannot change an id the ruleset already sets:
 
-- **It works for every id the endpoint does not list.** Endpoints are sparse: they list only the ids whose action differs from the analyzer default ([D22](https://github.com/ALCops/rulebook-engine/blob/main/docs/adr/0022-sparse-endpoints-an-id-at-its-analyzer-default-is-not-listed.md)), so every id at its analyzer default can be suppressed this way, Errors included.
+- **It works for every id the endpoint does not list.** Endpoints are sparse: they list only the ids whose action differs from the analyzer default ([D22](https://github.com/ALCops/rulebook-engine/blob/main/docs/adr/0022-sparse-endpoints-an-id-at-its-analyzer-default-is-not-listed.md)), so every analyzer diagnostic at its analyzer default can be suppressed this way, Errors included. Compiler errors (AL####) cannot be suppressed ([compiler-ruleset-internals.md section 8](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/compiler-ruleset-internals.md#8-how-the-ruleset-combines-with-other-inputs), [route B](pte-or-appsource.md#4-route-b-suppresswarnings-in-appjson)).
 - **It is a silent no-op for an id the endpoint lists**, at any action, Info included. The same holds when your own `.rulebook` file lists the id. Use an exception in `rules` (section 5) for those.
-- `/nowarn:<id>` on the `alc` command line is the only switch that beats a listed id.
+- On the `alc` command line, `/nowarn:<id>` is the only switch that beats a listed id; in a ruleset, an exception in the stage file's own `rules` does (section 5).
 
-Observed: [spike (f)](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/spikes/f-suppresswarnings-sparse-endpoint.md) on `alc` and in VS Code (`suppressWarnings` removed the unlisted AppSourceCop Errors AS0084 and AS0013; a listed AS0013 stayed at Warning or Info), and again in the WP06 live run ([rulebook-engine#60](https://github.com/ALCops/rulebook-engine/pull/60)): with `suppressWarnings: ["AA0247", "AA0137"]`, the unlisted AA0137 disappeared and AA0247, listed at Warning by `strict`, stayed. A change to `suppressWarnings` takes effect when `app.json` is saved in the editor, or after a window reload ([spike (e)](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/spikes/e-vscode-refetch.md)).
+Observed: [spike (f)](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/spikes/f-suppresswarnings-sparse-endpoint.md) removed the unlisted AppSourceCop Errors AS0084 and AS0013 with `suppressWarnings`; a listed id kept its ruleset action, at Error, Warning and Info on `alc`, and at Warning in VS Code after Reload Window (internals section 8 lists it per host). The same again in the WP06 live run ([rulebook-engine#60](https://github.com/ALCops/rulebook-engine/pull/60)): with `suppressWarnings: ["AA0247", "AA0137"]`, the unlisted AA0137 disappeared and AA0247, listed at Warning by `strict`, stayed. A change to `suppressWarnings` takes effect when `app.json` is saved in the editor, or after a window reload ([spike (e)](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/spikes/e-vscode-refetch.md)).
 
 Which per-tenant or AppSource rules to suppress, and the ready-made lists: [pte-or-appsource.md](pte-or-appsource.md), [route B](pte-or-appsource.md#4-route-b-suppresswarnings-in-appjson), [route C](pte-or-appsource.md#5-route-c-a-project-ruleset-file) and [the lists](pte-or-appsource.md#6-ready-made-lists).
 
 ## 7. When the endpoint fails (AL1033)
 
-When the compiler cannot use the endpoint (unreachable host, HTTP error, a 15 second timeout, invalid JSON, a redirect), it discards the **whole** ruleset, your exceptions included, and reports **AL1033** ([compiler-ruleset-internals.md section 7](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/compiler-ruleset-internals.md#7-failure-model)):
+When the compiler cannot use the endpoint (unreachable host, HTTP error, invalid JSON), it discards the **whole** ruleset, your exceptions included, and reports **AL1033** ([compiler-ruleset-internals.md section 7](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/compiler-ruleset-internals.md#7-failure-model)). Two more cases are code-derived and were not observed: a fetch that takes longer than the 15 second `HttpClient` timeout ([internals section 6](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/compiler-ruleset-internals.md#6-paths-and-urls)), and a redirect. The engine's reachability check treats a 3xx as a failure because the compiler's fetch is one request with no redirect (spike (a) saw no redirect on either host); a redirecting site was not tried, and the init script refuses a redirecting `baseUrl` for that reason.
 
-- **`alc` stops**: no compilation, no `.app`, exit code 1 ([spike (a)](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/spikes/a-hosts-and-skeleton-include.md), [spike (c)](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/spikes/c-alc-on-ubuntu.md)).
+- **`alc` stops**: no compilation, no `.app`, exit code 1, observed for a 404, an invalid file and a host that does not resolve ([spike (a)](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/spikes/a-hosts-and-skeleton-include.md), [spike (c)](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/spikes/c-alc-on-ubuntu.md)); for a timeout it was not observed.
 - **VS Code goes on** with the analyzer defaults and shows AL1033 on `app.json` ([spike (e)](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/spikes/e-vscode-refetch.md)). Every `None` of your level, every lowered rule and every organization override is lost until the endpoint loads again. Observed in the WP06 live run: with a broken include, AL1033 appeared on `app.json` and AA0247 fell back from Warning to its default Information ([rulebook-engine#60](https://github.com/ALCops/rulebook-engine/pull/60)).
 - **External rulesets off**: AL0767 when the setting is a URL, AL1033 when a local file includes one; `alc` stops in both cases. Set `al.enableExternalRulesets`, `enableExternalRulesets` or `/enableexternalrulesets` (section 4).
 
@@ -133,7 +135,7 @@ A pipeline should treat AL1033 as a failure, so a build never passes on the anal
 
 ## 8. Seeing changes in VS Code
 
-VS Code does not re-fetch a ruleset by itself and shows no hint that it changed. It reads the ruleset again after **Developer: Reload Window**, after a change to `app.json` saved in the editor, after a saved change to `al.ruleSetPath` or `al.enableCodeAnalysis`, or when the folder is reopened ([spike (e)](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/spikes/e-vscode-refetch.md)). That holds for an edit to your own `.rulebook` file too. After a publish of your rulebook, allow up to 10 minutes for the GitHub Pages cache ([hosting.md](hosting.md#how-fast-changes-arrive)).
+VS Code does not re-fetch a ruleset by itself and shows no hint that it changed. It reads the ruleset again after **Developer: Reload Window**, after a change to `app.json` saved in the editor, after a saved change to `al.ruleSetPath` or `al.enableCodeAnalysis`, or when the folder is reopened ([spike (e)](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/spikes/e-vscode-refetch.md)). After an edit to your own `.rulebook` file, use **Reload Window**: the live run reloaded after every edit, and whether a plain save of the local file is picked up was not tested (the extension does not watch ruleset files, [internals section 9](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/compiler-ruleset-internals.md#9-consumer-flags)). After a publish of your rulebook, allow up to 10 minutes for the GitHub Pages cache ([hosting.md](hosting.md#how-fast-changes-arrive)).
 
 ## 9. Troubleshooting
 
