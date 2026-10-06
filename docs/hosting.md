@@ -43,7 +43,7 @@ Then copy a skeleton from the index page into your AL project (see the [README](
 
 ### Custom domain
 
-Set the domain under Settings > Pages > Custom domain and add the DNS records GitHub shows there. Then change `baseUrl` to `https://<your domain>` in a pull request. Until you do, Publish warns that the site is served at another address than `baseUrl`, and the check after the deploy fails: the old `github.io` address now redirects to your domain, and the AL compiler does not follow redirects. Compile one project against the new address before you roll it out; custom domains have not been tested with the compiler's network checks yet.
+Set the domain under Settings > Pages > Custom domain and add the DNS records GitHub shows there. Then change `baseUrl` to `https://<your domain>` in a pull request. Until you do, Publish warns that the site is served at another address than `baseUrl`, and the check after the deploy fails right away with a message that the URL answers with a redirect: the old `github.io` address now redirects to your domain, and the AL compiler does not follow redirects. Compile one project against the new address before you roll it out; custom domains have not been tested with the compiler's network checks yet.
 
 Renaming the repository or the owner changes the `github.io` address the same way: update `baseUrl` and publish again.
 
@@ -62,7 +62,7 @@ Publish checks before it deploys and after it deploys. Its message says what to 
 | Message starts with | What to do |
 |---|---|
 | `baseUrl is empty` | Set `baseUrl` as in step 2; the message proposes the value for your repository. |
-| `GitHub Pages is not enabled for this repository` | Step 1. On GitHub Free, also check that the repository is public and that Pages creation is allowed. |
+| `GitHub Pages is not enabled for this repository` | Step 1. On GitHub Free, also check that the repository is public and that Pages creation is allowed. If Pages is already on, check that the Publish workflow still grants `pages: write`. |
 | `The GitHub Pages site of this repository builds from a branch` | Settings > Pages > Source: **GitHub Actions**. |
 | `The plan of this account does not support GitHub Pages for a private repository` | Make the repository public or upgrade the plan. |
 | `An organization administrator has disabled Pages creation` | Ask an organization owner to allow Pages creation (Public). |
@@ -76,6 +76,6 @@ The settings already accept three more `publish.target` values. They are planned
 
 | Target | Endpoints served from | Status |
 |---|---|---|
-| `dist-repo` | A separate public repository, through `raw.githubusercontent.com`. Lets the rulebook repository stay private on any plan. | Planned, [rulebook-engine#55](https://github.com/ALCops/rulebook-engine/issues/55) |
+| `dist-repo` | A separate public repository, through `raw.githubusercontent.com`. Intended to let the rulebook repository stay private on any plan. | Planned, [rulebook-engine#55](https://github.com/ALCops/rulebook-engine/issues/55) |
 | `azure-blob` | Azure Blob Storage, after an OIDC login from the workflow. | Planned, [rulebook-engine#56](https://github.com/ALCops/rulebook-engine/issues/56) |
 | `gist` | A GitHub gist. Needs a decision on the URL scheme first, because a gist has no folders. | Planned, [rulebook-engine#57](https://github.com/ALCops/rulebook-engine/issues/57) |
