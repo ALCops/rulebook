@@ -36,7 +36,7 @@ Rulebook is a GitHub template plus automation for managing the ruleset files tha
 flowchart LR
     tpl[ALCops/rulebook<br/>this template] -->|Use this template| org[org rulebook repo<br/>base, overrides.json, quarantine,<br/>generated rulesets, workflows]
     eng[ALCops/rulebook-engine<br/>actions, scripts] -.->|referenced by workflows| org
-    org -->|Publish workflow: generate + verify| url[(endpoint URLs<br/>GitHub Pages by default)]
+    org -->|Publish workflow: validate, deploy, verify| url[(endpoint URLs<br/>GitHub Pages by default)]
     url -->|one fetch| proj[AL project repo<br/>small local ruleset file]
     proj --> vscode[VS Code]
     proj --> algo[AL-Go for GitHub]
@@ -49,8 +49,8 @@ An endpoint URL has the form `<baseUrl>/rulesets/<level>.<stage>.ruleset.json`, 
 
 1. Press **Use this template** and create your org rulebook repo.
 2. Set the publish target, the quarantine policy and, if every project you build is of one kind, the `twins` setting in `.github/Rulebook-Settings.json`. The same file lists the levels and stages; add, alias or remove entries if the shipped set does not fit.
-3. Run the **Publish** workflow. Your endpoints are live.
-4. Copy the skeleton files for your level from `skeletons/` into an AL project as `.rulebook/<stage>.ruleset.json` and point `al.ruleSetPath` (VS Code) or `rulesetFile` (AL-Go) at the file for that stage. A skeleton includes one endpoint URL and nothing else.
+3. Turn on GitHub Pages once (Settings > Pages > Source **GitHub Actions**), set `baseUrl` in the settings to the site address, and merge. The **Publish** workflow publishes the endpoints, the skeletons and an index page, and checks every URL. See [docs/hosting.md](docs/hosting.md).
+4. Download the skeleton files for your level from the index page at `baseUrl` (they carry your URL) into an AL project as `.rulebook/<stage>.ruleset.json` and point `al.ruleSetPath` (VS Code) or `rulesetFile` (AL-Go) at the file for that stage. A skeleton includes one endpoint URL and nothing else.
 5. Opt out of the rules written for the other kind of extension, as described in [docs/pte-or-appsource.md](docs/pte-or-appsource.md). Add project-specific exceptions to the `rules` array of the local file; organization-wide changes go through the **Change rule** workflow into `overrides.json`.
 
 The detailed walkthroughs are listed in [docs/README.md](docs/README.md).
