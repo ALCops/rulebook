@@ -62,6 +62,8 @@ Invoke-WebRequest https://raw.githubusercontent.com/ALCops/rulebook-engine/main/
 ./Get-RulebookSkeletons.ps1 -BaseUrl https://contoso.github.io/rulebook -Level strict
 ```
 
+The script is a one-off helper: delete it afterwards, or download it to a temporary folder and pass the project folder with `-OutputPath`. Once the engine's `v1` branch exists (WP13), use the `v1` URL instead of `main`.
+
 | Parameter | Meaning |
 |---|---|
 | `-BaseUrl` | The address of your published site, the `baseUrl` of your rulebook repository. https; http only for a site served on the local machine. |
@@ -94,7 +96,7 @@ The script lives in the engine and is served from its `main` branch until the `v
 | AL-Go, next major | `rulesetFile` in `.github/NextMajor.settings.json` | `.rulebook/vnext.ruleset.json` (see the note below) |
 | `alc` | `/ruleset:<path>` and `/enableexternalrulesets` | the file of the stage; external rulesets are **off** by default on `alc` |
 
-The VS Code row was observed in the WP06 live run: `.rulebook/default.ruleset.json` relative to the workspace folder. The AL-Go rows give the setting names and the recommended files; what AL-Go resolves a relative `rulesetFile` against (the repository root or the project folder) is not verified here and belongs to the AL-Go walkthrough (WP11).
+The VS Code row was observed in the WP06 live run: `.rulebook/default.ruleset.json` relative to the workspace folder. When the workspace folder is not the project folder (the repository root opened in VS Code, the app in `app/`), prefix the path with the project folder: `app/.rulebook/default.ruleset.json`. The init script prints paths relative to the folder it runs in. The AL-Go rows give the setting names and the recommended files; what AL-Go resolves a relative `rulesetFile` against (the repository root or the project folder) is not verified here and belongs to the AL-Go walkthrough (WP11).
 
 Sources: [compiler-ruleset-internals.md section 9](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/compiler-ruleset-internals.md#9-consumer-flags), the [AL-Go settings](https://github.com/microsoft/AL-Go/blob/main/Scenarios/settings.md) and Microsoft Learn's [AL extension configuration](https://learn.microsoft.com/dynamics365/business-central/dev-itpro/developer/devenv-al-extension-configuration).
 
@@ -109,6 +111,7 @@ An exception is an entry in `rules` of the stage's file:
 - `id` is the diagnostic id, `action` one of `Error`, `Warning`, `Info`, `Hidden` or `None`, `justification` free text. The compiler ignores `justification`; write one anyway, so the next reader knows why.
 - The file's own `rules` override the endpoint in both directions: lower a rule the endpoint sets to `Warning`, or raise one.
 - Repeat the exception in the file of every stage it applies to (section 2).
+- An invalid `action` in the file, `Default` in `rules` or a typo, makes the whole ruleset fail to load: AL1033, your exceptions included (code-derived, [compiler-ruleset-internals.md sections 2 and 7](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/compiler-ruleset-internals.md#2-schema-as-the-code-accepts-it)).
 - A list that grows, or the same exception in many projects, is a signal for a change for the whole organization instead: an entry in `overrides.json` of your rulebook repository (the change workflow arrives with WP09).
 
 ## 6. Exactly when suppressWarnings works
