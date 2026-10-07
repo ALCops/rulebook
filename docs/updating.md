@@ -21,13 +21,13 @@ The update compares what the template ships with what your repository holds, fil
 
 | Your files | What the update does |
 |---|---|
-| Workflows under `.github/workflows/` that the template ships, the shipped level files in `base/` (`essential`, `recommended`, `strict`, `complete`), `base/twins.json`, the shipped stage files in `stages/` (`ci.json`, `vnext.json`), `skeletons/README.md`, `.github/RELEASENOTES.copy.md` | **Replaced** by the template version. A hand edit is reverted, and the pull request shows the revert. Change rules in `overrides.json` instead (or add your own level or stage file). |
-| `.github/Rulebook-Settings.json` | **Kept**. Only `$schema`, `templateUrl` and `templateSha` change; everything else stays byte for byte, including the formatting. |
+| Workflows under `.github/workflows/` that the template ships, the shipped level files in `base/` (`essential`, `recommended`, `strict`, `complete`), `base/twins.json`, the shipped stage files in `stages/` (`ci.json`, `vnext.json`), `skeletons/README.md`, and `.github/RELEASENOTES.copy.md` and the issue form under `.github/ISSUE_TEMPLATE/` when the template ships them (planned) | **Replaced** by the template version. A hand edit is reverted, and the pull request shows the revert. Change rules in `overrides.json` instead (or add your own level or stage file). |
+| `.github/Rulebook-Settings.json` | **Kept**. Only the values of `$schema`, `templateUrl` and `templateSha` change (each inserted when missing); everything else keeps its text and formatting, except that line endings become LF. |
 | `rulesets/` (the endpoints) and `skeletons/*.ruleset.json` | **Regenerated** from the new level and stage files and your settings, `overrides.json`, quarantine files and catalog. A level or stage you added gets its endpoints and skeletons in the same pull request. |
 | `overrides.json`, `quarantine.*.json`, `catalog/`, `README.md`, level and stage files you added, your own workflows, `docs/` | **Never touched.** |
-| `site/**` (the dashboard, when the template ships it) | **Overwritten only when you have not changed the file.** A file you changed is kept; when the template changed it too, it is listed under "Skipped: local changes in site/" in the pull request so you can take over what you need. With `"site": { "updateMode": "overwrite" }` site files are replaced like system files. |
+| `site/**` (the dashboard; planned, the template does not ship it yet) | **Overwritten only when you have not changed the file.** A file you changed is kept; when the template changed it too, it is listed under "Skipped: local changes in site/" in the pull request so you can take over what you need. With `"site": { "updateMode": "overwrite" }` site files are replaced like system files. |
 
-In the workflows, the update also fills in the current template URL (the dispatch form shows "current is https://github.com/ALCops/rulebook@main"), and it writes the `levels` and `stages` choice lists of the Change rule workflow from your settings, so a level you add appears in the form after the next update.
+In the workflows, the update also fills in the current template URL (the dispatch form shows "current is https://github.com/ALCops/rulebook@main"). When the template ships the Change rule workflow (planned), the update also writes its `levels` and `stages` choice lists from your settings, so a level you add appears in the form after the next update.
 
 Before anything is pushed, the update runs the full validation on the updated repository. If the result has an error, the run fails with the findings and nothing is pushed. The findings come from the repository as it would be after the update, so an error your repository already has stops the update too. Fix it first. Warnings go into the pull request.
 
@@ -49,7 +49,7 @@ The run needs the `GHTOKENWORKFLOW` secret ([ghtokenworkflow.md](ghtokenworkflow
 
 ## 3. How you hear about an update
 
-The Validate workflow runs the same comparison on every pull request and push, without writing anything, and annotates the run:
+The Validate workflow, which runs on every pull request and on every push to `main`, runs the same comparison without writing anything, because its Validate step keeps `checkForUpdates` at its default `'true'`. It annotates the run:
 
 | Annotation | Meaning |
 |---|---|
@@ -58,7 +58,7 @@ The Validate workflow runs the same comparison on every pull request and push, w
 | warning "Updates available: run the Update Rulebook System Files workflow (`<n>` files)" | The template moved, or a system file was edited by hand. The job summary lists the files under "Template update check". |
 | warning "update check skipped: `<reason>`" | The check could not run: the template could not be read, the updated rulebook would not validate, or something else failed. |
 
-None of these annotations fails Validate or counts as a warning, also with `failOnWarning`. The check reads the template with the workflow token only, which cannot read a private template (also not on a pull request from a fork); the check then says "update check skipped", and the update itself still works with the secret. Turn the check off with `checkForUpdates: 'false'` on the Validate step.
+None of these annotations fails Validate or counts as a warning, also with `failOnWarning`. The check reads the template with the workflow token only. It is skipped when that token cannot read the template: a private template, or (code-derived, not verified in the live run) a pull request from a fork whose token is restricted. A public template was verified on a normal pull request. The update itself still works with the secret. Turn the check off with `checkForUpdates: 'false'` on the Validate step.
 
 ## 4. The pull request
 
@@ -75,11 +75,11 @@ The branch is `update-rulebook-system-files/<branch>/<yyMMddHHmmss>`, and the pu
 3. **Skipped: local changes in site/**, when site files were kept.
 4. **Notes**, for example a file the template no longer ships.
 5. **Validation warnings**, when the updated repository has any.
-6. **Release notes**: the part of the template's release notes that is newer than your copy, or "No release notes available".
+6. **Release notes**, when the template ships `.github/RELEASENOTES.copy.md` (planned): the part that is newer than your copy, or "No release notes available". Without that file the section is left out.
 
 A very long body is shortened below GitHub's limit: the release notes go first, then endpoint tables. The job summary of the run has the full lists. The Validate workflow runs on the pull request like on any other.
 
-**One open update at a time.** A second run while the update pull request is open warns "Pull request already exists: `<url>`" and creates nothing. The guard compares titles, and the title contains the commit of your branch. If something is merged into the branch while the update pull request is open, the next run opens a second update pull request. Close the older one.
+**Open update pull requests.** A second run while the update pull request is open warns "Pull request already exists: `<url>`" and creates nothing, as long as the title is the same. The guard compares titles, and the title contains both the commit of your branch and the template commit. So the next run opens a second update pull request when something was merged into your branch, or when the template moved, while the first one was open (with a weekly schedule, a template that moves every week does this). Merge the newer one and close the older.
 
 ## 5. Removing a shipped level, stage or file
 
@@ -111,10 +111,10 @@ With "Push to this branch instead of opening a pull request" on, the update comm
 
 | Message | Cause | Fix |
 |---|---|---|
-| "The GHTOKENWORKFLOW secret is needed to update system files. Read https://github.com/ALCops/rulebook/blob/main/docs/ghtokenworkflow.md" | The secret does not exist, or this repository cannot see it (an organization secret limited to other repositories, or a secret with another name). | Create it ([ghtokenworkflow.md](ghtokenworkflow.md)). With another name, set `ghTokenWorkflowSecretName` in the settings. |
+| "The GHTOKENWORKFLOW secret is needed to update system files. Read https://github.com/ALCops/rulebook/blob/main/docs/ghtokenworkflow.md" (with `ghTokenWorkflowSecretName` set, the message names that secret) | The secret does not exist, or this repository cannot see it (an organization secret limited to other repositories, or a secret with another name). | Create it ([ghtokenworkflow.md](ghtokenworkflow.md)). With another name, set `ghTokenWorkflowSecretName` in the settings. |
 | "The GHTOKENWORKFLOW secret could not be used: ..." | The App is not installed on this repository, the App JSON is incomplete, or the token request was refused. | Install the App on the repository, rebuild the secret with the one-liner, check the App's permissions. |
 | "Failed to update the Rulebook system files. Make sure that the token in the secret GHTOKENWORKFLOW is not expired and may write contents, pull requests and workflows of `<repository>` ..." | Cloning or pushing failed: an expired personal access token, or a token without the Workflows permission. | Renew the token or add the permission. |
-| "Failed to create the pull request for the Rulebook system files ... Branch `<name>` was pushed; open the pull request by hand: `<link>`" | The branch is pushed, but opening the pull request was refused (permissions, or an organization policy). | Open the pull request from the link, and fix the token's Pull requests permission. |
+| "Failed to create the pull request for the Rulebook system files ..." | The pull request step failed. When a branch was already pushed, the message names it with a link ("Branch `<name>` was pushed; open the pull request by hand: `<link>`"): opening the pull request was refused (permissions, or an organization policy). Without that part nothing was pushed: the token could not read the branch or the open pull requests before cloning. | With the link, open the pull request by hand; in both cases check the token's Pull requests permission and that it can read the repository. |
 | "Pull request already exists: `<url>`" | An update pull request for the same commits is open. | Review and merge or close it. |
 | "The updated rulebook would not validate: ..." (with "failure validation") | The repository after the update has an error, often one it already had. | Fix the reported file (run Validate on a pull request to see the same findings), then run the update again. |
 | "no .github/workflows in the template" | `templateUrl` points at a repository that is not a Rulebook template. | Correct `templateUrl` or the dispatch input. |

@@ -23,7 +23,7 @@ The update workflow therefore keeps `GITHUB_TOKEN` read-only (`contents: read`, 
 
 ## 2. A GitHub App (recommended)
 
-A GitHub App gives the update a short-lived token for one repository at a time. Commits and pull requests show the App as their author, tagged **bot**. The private key never leaves the runner.
+A GitHub App gives the update a short-lived token for one repository at a time. The pull request shows the App as its author, tagged **bot**; the commit itself is authored by the account that started the run (for a scheduled run, the account that last changed the schedule), as `<account>@users.noreply.github.com`. The private key never leaves the runner.
 
 1. **Register the App.** For an organization: `https://github.com/organizations/<org>/settings/apps/new`. For a personal account: <https://github.com/settings/apps/new>.
    - Name: anything unique, for example `contoso-rulebook`. Homepage URL: any URL, for example your rulebook repository.
@@ -49,10 +49,10 @@ On every run the update exchanges the App JSON for an installation token. The to
 
 ## 3. A personal access token
 
-A personal access token is used as it is, without an exchange. Commits and pull requests show its owner as the author.
+A personal access token is used as it is, without an exchange. The pull request shows the token's owner as its author; the commit is authored by the account that started the run, as with an App.
 
 - **Fine-grained token** (better): resource owner your organization, only the rulebook repository, repository permissions Contents, Pull requests and Workflows **Read and write**, Actions **Read-only** (Metadata comes by itself).
-- **Classic token**: the `workflow` scope (which includes `repo`). It reaches every repository its owner can reach.
+- **Classic token**: both the `repo` and the `workflow` scopes. It reaches every repository its owner can reach.
 
 Give it a short expiration date and renew it before it runs out: an expired token fails the update (section 6). Store the token itself as the secret value.
 
@@ -69,7 +69,7 @@ A secret that is visible to the repository does not by itself give access: the A
 "ghTokenWorkflowSecretName": "RULEBOOK_TOKEN"
 ```
 
-The name may contain letters, digits and underscores and must not start with a digit.
+The name follows GitHub's rules for secret names: letters, digits and underscores, not starting with a digit, and not starting with `GITHUB_` (in any case). An invalid name is a C5 finding of the settings check in Validate, the update workflow's "Read the settings" step fails with "ghTokenWorkflowSecretName '`<name>`' is not a valid secret name", and the update never falls back to `GHTOKENWORKFLOW`.
 
 ## 5. A private template
 
@@ -84,10 +84,10 @@ The Validate check reads with the workflow token only, so for a private template
 
 | Message | Cause | Fix |
 |---|---|---|
-| "The GHTOKENWORKFLOW secret is needed to update system files. Read https://github.com/ALCops/rulebook/blob/main/docs/ghtokenworkflow.md" | No secret of that name is visible to the repository. | Create it (section 4). With another name, set `ghTokenWorkflowSecretName`. |
+| "The GHTOKENWORKFLOW secret is needed to update system files. Read https://github.com/ALCops/rulebook/blob/main/docs/ghtokenworkflow.md" (the message carries the configured name when `ghTokenWorkflowSecretName` is set) | No secret of that name is visible to the repository. | Create it (section 4). With another name, set `ghTokenWorkflowSecretName`. |
 | "The GHTOKENWORKFLOW secret could not be used: The GitHub App `<client id>` has no installation on `<repository>` ..." | The App is not installed on the rulebook repository. | Install it (section 2, step 3). |
 | "... The GitHub App JSON in the token secret needs GitHubAppClientId and PrivateKey" or "... is not a PEM key" | The secret value is not the JSON of step 4. | Build it again with the one-liner. |
-| "... could not get an installation token for `<repository>` (HTTP 422: ...)" | The App lacks one of the permissions in step 1. | Add the permission, then accept the new permissions on the installation. |
+| "... could not get an installation token for `<repository>` (HTTP `<status>`: `<message>`)" | GitHub refused the token request; the status and message come from the API. Likely causes (code-derived, not observed): a permission of step 1 is missing, or the App is not installed on the repository; a wrong client id or private key usually fails one step earlier, at the installation lookup. | Compare the App's permissions with step 1 and its installation with step 3; rebuild the secret if the key was regenerated. |
 | "Failed to update the Rulebook system files. Make sure that the token in the secret GHTOKENWORKFLOW is not expired and may write contents, pull requests and workflows ..." | Pushing failed: an expired personal access token, or no Workflows permission. | Renew the token or add the permission. |
-| "Failed to create the pull request ... open the pull request by hand: `<link>`" | The branch was pushed, but the pull request was refused. | Open it from the link; give the token Pull requests write. |
+| "Failed to create the pull request ..." | With "Branch `<name>` was pushed; open the pull request by hand: `<link>`": the branch is pushed and only the pull request was refused. Without it, nothing was pushed: the token could not read the branch or the open pull requests. | Open it from the link when there is one; give the token Pull requests write and read access to the repository. |
 | "update check skipped: Could not get the latest commit of ..." in Validate | A private template, which the workflow token cannot read. | Expected; the update itself uses the secret (section 5). |
