@@ -28,7 +28,7 @@ Rulebook is a GitHub template plus automation for managing the ruleset files tha
 | One URL for `al.ruleSetPath`, the AL-Go `rulesetFile`, or a small local file | One **endpoint** per level and stage: a single flat ruleset file that lists only the diagnostics whose severity differs from the analyzer default, so a compile fetches one small file. Published by a workflow. |
 | New analyzer rules must not break a green pipeline | A daily **scan** of the compiler and ALCops packages quarantines new diagnostic ids per stage, reports changed default severities, and regenerates the endpoints. |
 | Change a rule without editing dozens of files | A **workflow form** that writes one entry to `overrides.json`, regenerates the endpoints and opens a pull request. |
-| Keep the automation up to date without losing your own decisions | An **update workflow** modelled on AL-Go's "Update AL-Go System Files". |
+| Keep the automation up to date without losing your own decisions | An **update workflow** modelled on AL-Go's "Update AL-Go System Files": a pull request with the new template files and the regenerated endpoints, your overrides and settings kept. See [docs/updating.md](docs/updating.md); the write token is [docs/ghtokenworkflow.md](docs/ghtokenworkflow.md). |
 
 ## 2. How it fits together
 

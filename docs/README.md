@@ -16,7 +16,8 @@ Index of the user-facing documentation. The pages marked *planned* do not exist 
 | `changing-a-rule.md` | The Change rule workflow: opt in, opt out, raise, lower, with justification, as a pull request that regenerates the endpoints. | planned |
 | `overrides.md` | The `overrides.json` file: selectors for levels and stages (lowercase names or `*`), precedence over the twins setting, the level and stage files and the quarantine. | planned |
 | `new-rules.md` | The daily scan, the quarantine policy per stage (one quarantine file per stage in your settings), prerelease packages and vNext, adopting a quarantined rule, changed default severities. | planned |
-| `updating.md` | The Update Rulebook System Files workflow: what is overwritten, what is preserved, scheduling, pinning a version. | planned |
+| [`updating.md`](updating.md) | The Update Rulebook System Files workflow: what is replaced, kept, regenerated or never touched, the site files, running it and pinning a version, the check in Validate, the pull request, removing a shipped level or stage with `unusedRulebookFiles`, the schedule, direct commit, troubleshooting. | written |
+| [`ghtokenworkflow.md`](ghtokenworkflow.md) | The `GHTOKENWORKFLOW` secret the update writes with: why the workflow token is not enough, a GitHub App step by step with the one-liner for the secret, a personal access token, organization secrets and `ghTokenWorkflowSecretName`, a private template, failure messages. | written |
 | `migration.md` | Importing an existing ruleset tree (blob-hosted layouts, StefanMaron/RulesetFiles) into Rulebook. | planned |
 | `troubleshooting.md` | AL1033 and AL0767, unreachable endpoints, token failures, validation errors. | planned |
 
