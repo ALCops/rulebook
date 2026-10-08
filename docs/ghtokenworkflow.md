@@ -1,6 +1,6 @@
 # The GHTOKENWORKFLOW secret
 
-The update workflow writes to your rulebook repository: it changes files under `.github/workflows/`, pushes a branch and opens a pull request. It does that with a token from the secret `GHTOKENWORKFLOW`, the same secret and value format AL-Go for GitHub uses. An organization that runs AL-Go can reuse its secret and GitHub App.
+The update workflow writes to your rulebook repository: it changes files under `.github/workflows/`, pushes a branch and opens a pull request. It does that with a token from the secret `GHTOKENWORKFLOW`, the same secret and value format AL-Go for GitHub uses. An organization that runs AL-Go can reuse its secret and GitHub App. The Scan Diagnostics workflow ([quarantine.md](quarantine.md)) uses the same secret, found the same way through `ghTokenWorkflowSecretName`, and exchanges a GitHub App value for a token the same way; it pushes the branch `scan-diagnostics/<branch>` and opens or updates its pull request with the same app permissions as the update, and its push failures name the secret too.
 
 > **Status:** written 2026-10-07 with the update work package of the engine ([WP07, #9](https://github.com/ALCops/rulebook-engine/issues/9)); the decision is [D44](https://github.com/ALCops/rulebook-engine/blob/main/docs/adr/0044-the-write-token-secret-is-ghtokenworkflow-in-al-go-format.md). How the update uses the token: [updating.md](updating.md) and the engine's [update-mechanics.md](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/update-mechanics.md) section 6.
 
