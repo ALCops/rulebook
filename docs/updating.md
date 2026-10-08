@@ -103,7 +103,7 @@ Set a five-field cron expression in the settings:
 "update": { "schedule": "0 6 * * 1" }
 ```
 
-Run the update once. It adds a `schedule:` trigger with that cron to `UpdateRulebookSystemFiles.yaml` in its pull request; set `"schedule": null` and run it again to remove the trigger (both verified in the live run). After the merge, GitHub runs the workflow on that schedule from the default branch only (code-derived: a scheduled run was not observed in the live run). A run by hand uses the branch you choose under "Use workflow from". A scheduled run always resolves the latest template commit, and opens a pull request unless `commitOptions.createPullRequest` is `false`.
+Run the update once. It adds a `schedule:` trigger with that cron to `UpdateRulebookSystemFiles.yaml` in its pull request; set `"schedule": null` and run it again to remove the trigger (both verified in the live run). After the merge, GitHub runs the workflow on that schedule from the default branch only (code-derived: a scheduled run was not observed in the live run). A run by hand uses the branch you choose under "Use workflow from". A scheduled run always resolves the latest template commit, and opens a pull request unless `commitOptions.createPullRequest` is `false`. The update writes the schedule of the Scan Diagnostics workflow the same way, from `scan.schedule` ([quarantine.md](quarantine.md) section 7); an absent `scan` key keeps the schedule the template ships.
 
 ## 7. Direct commit
 
