@@ -82,6 +82,8 @@ The Validate check reads with the workflow token only, so for a private template
 
 ## 6. When it fails
 
+The token rows below apply to the update and to the Scan Diagnostics workflow alike (the scan's message says "to scan diagnostics" where the update's says "to update system files"); the scan's own messages are in [quarantine.md](quarantine.md) section 8.
+
 | Message | Cause | Fix |
 |---|---|---|
 | "The GHTOKENWORKFLOW secret is needed to update system files. Read https://github.com/ALCops/rulebook/blob/main/docs/ghtokenworkflow.md" (the message carries the configured name when `ghTokenWorkflowSecretName` is set) | No secret of that name is visible to the repository. | Create it (section 4). With another name, set `ghTokenWorkflowSecretName`. |
