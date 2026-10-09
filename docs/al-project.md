@@ -112,7 +112,7 @@ An exception is an entry in `rules` of the stage's file:
 - The file's own `rules` override the endpoint in both directions: lower a rule the endpoint sets to `Warning`, or raise one.
 - Repeat the exception in the file of every stage it applies to (section 2).
 - An invalid `action` in the file, `Default` in `rules` or a typo, makes the whole ruleset fail to load: AL1033, your exceptions included (code-derived, [compiler-ruleset-internals.md sections 2 and 7](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/compiler-ruleset-internals.md#2-schema-as-the-code-accepts-it)).
-- A list that grows, or the same exception in many projects, is a signal for a change for the whole organization instead: an entry in `overrides.json` of your rulebook repository (the change workflow arrives with WP09).
+- A list that grows, or the same exception in many projects, is a signal for a change for the whole organization instead: an entry in `overrides.json` of your rulebook repository, written with the Change Rule workflow ([changing-a-rule.md](changing-a-rule.md)).
 
 ## 6. Exactly when suppressWarnings works
 

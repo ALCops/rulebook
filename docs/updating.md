@@ -27,7 +27,7 @@ The update compares what the template ships with what your repository holds, fil
 | `overrides.json`, `quarantine.*.json`, `catalog/`, `README.md`, level and stage files you added, your own workflows, `docs/`, `site/data/**` | **Never touched.** |
 | `site/**` (the dashboard; planned, the template does not ship it yet) | **Overwritten only when you have not changed the file.** A file you changed is kept; when the template changed it too, it is listed under "Skipped: local changes in site/" in the pull request so you can take over what you need. That list gives a reason per file: "local changes" (you and the template both changed it), "local file" (a file of yours the installed template did not ship), or "no installed template" (empty `templateSha`, or the installed template commit could not be downloaded, so the update cannot tell your changes from the template's and keeps every differing file). A site file you deleted comes back while the template ships it (list it in `unusedRulebookFiles` to keep it away). This is the shipped `"updateMode": "skip"`; any value other than `"overwrite"` behaves the same. With `"site": { "updateMode": "overwrite" }` site files are replaced like system files. |
 
-In the workflows, the update also fills in the current template URL (the dispatch form shows "current is https://github.com/ALCops/rulebook@main"). When the template ships the Change rule workflow (planned), the update also writes its `levels` and `stages` choice lists from your settings, so a level you add appears in the form after the next update.
+In the workflows, the update also fills in the current template URL (the dispatch form shows "current is https://github.com/ALCops/rulebook@main"). The update also writes the `levels` and `stages` choice lists of the Change Rule workflow from your settings, so a level or stage you add appears in the form after the next update ([changing-a-rule.md](changing-a-rule.md) section 7; observed: a level `House` added after `Recommended` became one line `- house` between `recommended` and `strict`, the only change to that file).
 
 Before anything is pushed, the update runs the full validation on the updated repository. If the result has an error, the run fails with the findings and nothing is pushed. The findings come from the repository as it would be after the update, so an error your repository already has stops the update too. Fix it first. Warnings go into the pull request.
 
@@ -49,7 +49,7 @@ The run needs the `GHTOKENWORKFLOW` secret ([ghtokenworkflow.md](ghtokenworkflow
 
 ## 3. How you hear about an update
 
-The Validate workflow, which runs on every pull request and on every push to `main`, runs the same comparison without writing anything, because its Validate step keeps `checkForUpdates` at its default `'true'`. It annotates the run:
+The Validate workflow, which runs on every pull request and on every push to `main`, runs the same comparison without writing anything. It annotates the run:
 
 | Annotation | Meaning |
 |---|---|
@@ -60,7 +60,13 @@ The Validate workflow, which runs on every pull request and on every push to `ma
 
 None of these annotations fails Validate or counts as a warning, also with `failOnWarning`. The check reads the template with the workflow token only, so it is skipped for a private template, which that token cannot read; the update itself still works with the secret. A public template is read fine (verified on a normal pull request; a pull request from a fork was not tried, and its token can still read public repositories). Other skip reasons, such as an exhausted API rate limit, carry their own text after "update check skipped:".
 
-There is no lasting switch to turn the check off yet. `checkForUpdates: 'false'` on the Validate step of `Validate.yaml` works until the next update, which replaces the workflow with the template version and turns the check back on; a settings key for it is planned ([ALCops/rulebook-engine#67](https://github.com/ALCops/rulebook-engine/issues/67)). Since the notice or warning never fails Validate, the practical answer until then is to leave the check on.
+**Turning the check off.** Set `update.check` to `false` in `.github/Rulebook-Settings.json`:
+
+```json
+"update": { "schedule": null, "check": false }
+```
+
+Validate then skips the comparison and says `Update check off (update.check is false)` in its log. The key lives in your settings, so it survives updates; the template does not ship it, and absent means on. Adding `checkForUpdates: 'false'` to the Validate step of `Validate.yaml` (the shipped workflow does not set it) works only until the next update replaces that system file; the setting is the lasting switch. An explicit `checkForUpdates: 'true'` or `'false'` on the step still wins over the setting, for a workflow of your own that calls the Validate action.
 
 ## 4. The pull request
 
