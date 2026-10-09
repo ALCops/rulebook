@@ -84,7 +84,7 @@ The job summary of the run has the same table and, after the push, the effective
 
 > No change: LC0031 is already None on every matching endpoint (strict.ci); overrides.json was not written
 
-That covers running the same change twice and adding an entry that only repeats what the levels already give. An existing entry for the same selection with another action is different: it is replaced and written even when every selected endpoint already shows the requested action (a more specific entry hides it there), and the table then shows every row `unchanged`. When a more specific entry or another input keeps a different action on some of the endpoints, the notice says which:
+That covers running the same change twice and adding an entry that only repeats what the levels already give. An existing entry for the same selection with another action is different: it is replaced and written even when no endpoint changes (a more specific entry already decides everywhere it matches), and the table then shows every row `unchanged`. When a more specific entry or another input keeps a different action on some of the endpoints, the notice says which:
 
 > No change: LC0015 keeps its effective action on every matching endpoint (2 at Warning; 1 decided by a more specific entry or input: strict.ci None (override)); overrides.json was not written
 
