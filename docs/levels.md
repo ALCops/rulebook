@@ -32,7 +32,7 @@ The template ships four levels in one ladder:
 
 Each engine page lists the entries of the level file grouped by analyzer, with the action of the level below ("From"), the new action ("To"), a `lowered` mark where the action goes down, the justification and the docs link, and the counts for every stage. The "lists" figure is the number of diagnostics the endpoint writes: an endpoint names only the rules whose action differs from the analyzer default. The engine pages describe the shipped levels; your own levels get their pages with the dashboard site (WP14). The links resolve once the engine change that adds the pages is merged.
 
-Stages modify the level result per rule: `default` is the level as it is, `CI` relaxes a few postponable diagnostics to Info, `vNext` raises compiler future errors to Error. Each stage other than `default` is one file `stages/<slug>.json`, applied on top of every level, and never turns on a rule the level left off.
+Stages modify the level result per rule: `default` is the level as it is, `CI` relaxes a few postponable diagnostics to Info, `vNext` raises compiler future errors to Error and obsolete-pending diagnostics to Warning. Each stage other than `default` is one file `stages/<slug>.json`, applied on top of every level, and never turns on a rule the level left off.
 
 ## 2. Picking a starting point
 
@@ -40,13 +40,13 @@ Stages modify the level result per rule: `default` is the level as it is, `CI` r
 |---|---|---|
 | A sensible baseline with little effort | The closest shipped level | Adjust single rules with overrides through the **Change Rule** workflow ([changing-a-rule.md](changing-a-rule.md), [overrides.md](overrides.md)). |
 | Nothing on, and to opt in rule by rule | An everything-off root level of your own (section 6) | Opt in with overrides scoped to `levels: ["off"]`, or move projects to a shipped level later. |
-| No maintenance | Any shipped level | Let the update keep it current: `update.schedule` and, if you want, auto-merge of the update pull requests ([updating.md](updating.md) section 6). |
+| No maintenance | Any shipped level | Let the update keep it current on a schedule with `update.schedule`, and set `commitOptions.createPullRequest` to `false` if the scheduled run should commit directly instead of opening a pull request ([updating.md](updating.md) sections 6 and 7). |
 
 Projects choose a level when they download their skeletons (section 9); different projects can use different levels of the same rulebook.
 
 ## 3. Changing the set: the branch route
 
-Every change in sections 4 to 8 is a settings edit plus at most one file. The endpoints in `rulesets/`, the skeletons in `skeletons/` and the level and stage lists of the Change Rule form are generated from them. Until they match the settings, Validate fails the pull request with C11 and C12 (*observed* in every card of the live run), for example:
+Every change in sections 4 to 8 is a settings edit plus at most one file. The endpoints in `rulesets/`, the skeletons in `skeletons/` and the level and stage lists of the Change Rule form are generated from them. Until they match the settings, Validate fails the pull request with C11 and C12 (*observed* in cards (b) to (e) of the live run), for example:
 
 ```text
 skeletons/off.default.ruleset.json is missing; every levels x stages entry has one
@@ -61,7 +61,18 @@ A repository with Validate as a required check cannot merge such a pull request.
    - With it **off**, the run opens its own pull request into that branch; merge that one first (*observed*, cards (d) and (e)).
 3. Validate runs again on your pull request and passes (*observed*: 0 errors, 0 warnings). Merge it.
 
-Alternatives: where merging with a failing check is allowed, merge first and run the update on the default branch; `main` is red until it ran, and Publish stops at its Validate gate in between without publishing anything (*observed*). Or regenerate locally and commit to the branch with `Update-RulebookEndpoints -RepositoryRoot .` (module Rulebook.Generate) and `New-RulebookSkeleton -SettingsPath .github/Rulebook-Settings.json -OutputPath skeletons` (module Rulebook.Template); the Change Rule form lists then follow with the next update ([changing-a-rule.md](changing-a-rule.md) section 7).
+The update pushes to the branch, or opens its pull request, with the write token of the `GHTOKENWORKFLOW` secret ([updating.md](updating.md) section 2, [ghtokenworkflow.md](ghtokenworkflow.md)); because that token and not the workflow's own one is used, Validate runs again on the new head (*observed* with a GitHub App; code-derived for a personal access token).
+
+Alternatives: where merging with a failing check is allowed, merge first and run the update on the default branch; `main` is red until it ran, and Publish stops at its Validate gate in between without publishing anything (*observed*). Or regenerate locally and commit to the branch: clone the `main` branch of [ALCops/rulebook-engine](https://github.com/ALCops/rulebook-engine) next to your repository (as in [quarantine.md](quarantine.md) section 4) and run, in PowerShell 7.4 or newer from the root of your rulebook repository:
+
+```powershell
+Import-Module ../rulebook-engine/modules/Rulebook.Generate.psd1
+Import-Module ../rulebook-engine/modules/Rulebook.Template.psd1
+Update-RulebookEndpoints -RepositoryRoot .
+New-RulebookSkeleton -SettingsPath .github/Rulebook-Settings.json -OutputPath skeletons
+```
+
+The Change Rule form lists then follow with the next update ([changing-a-rule.md](changing-a-rule.md) section 7).
 
 The update's own pull request or commit may say "No effective change." under its effective diff even though it creates or deletes endpoint files (*observed*): the effective diff compares the inputs of the two commits, and your branch already declares the change. The files are in its change list.
 
@@ -117,7 +128,7 @@ Shipped names are not edited: the shipped file name is what the update overwrite
 
 Keep the other levels' `basedOn` as they are: Recommended stays based on Essential, whose file stays as an unpublished starting point, so Validate gives no C9 for it (*observed*). After the branch route, the `baseline` endpoints and skeletons replace the `essential` ones; GitHub shows them as renames that change only the name and description lines, because the rules are identical (*observed*). The endpoint URLs change from `essential` to `baseline`: update the projects that used Essential (section 9).
 
-An alias does not inherit overrides scoped to the original slug: overrides name slugs, so an entry with `levels: ["essential"]` no longer applies once Essential is not published, and Validate reports it (C10). Retarget such entries to the new slug ([overrides.md](overrides.md) section 2).
+An alias does not inherit overrides scoped to the original slug (code-derived): overrides name slugs, so an entry with `levels: ["essential"]` no longer applies once Essential is not published, and Validate reports it (C10). Retarget such entries to the new slug ([overrides.md](overrides.md) section 2).
 
 ## 6. Everything off
 
@@ -141,7 +152,7 @@ followed by the next steps of section 3. The script never edits the settings. Pa
 
 The update created `rulesets/off.ruleset.json`, `off.ci` and `off.vnext` with 605 entries each, three skeletons and `'off'` in the form, and left `base/off.ruleset.json` alone (*observed*): the file belongs to your repository.
 
-Opt in with overrides scoped to `levels: ["off"]` ([overrides.md](overrides.md)), or by editing `base/off.ruleset.json`. Diagnostics that appear after the file was written are not in it: they arrive through quarantine ([quarantine.md](quarantine.md)). Two things to know:
+Opt in with overrides scoped to `levels: ["off"]` ([overrides.md](overrides.md)), or by editing `base/off.ruleset.json`. Diagnostics that appear after the file was written are not in it. In the stages your quarantine policy names they arrive through quarantine and stay `None` ([quarantine.md](quarantine.md) section 2); in a stage the policy does not name, a new default-on rule is active at its analyzer default in Off until you add it to `base/off.ruleset.json` or override it. Two things to know:
 
 - When Off is the only published level, every entry of `stages/ci.json` and `stages/vnext.json` is a C8 warning ("... is None in every published level, so this stage entry never applies"). The stage files are system files; keep them.
 - The scan removes a quarantine entry as soon as a file on the chain of any published level mentions the rule. If you also publish a shipped level and an update adds a new rule to its file, the rule leaves quarantine and is active at its analyzer default in Off, unless you add it to `base/off.ruleset.json` ([quarantine.md](quarantine.md) section 4).
@@ -206,13 +217,16 @@ After the update (or a local regeneration and the next update for the form):
 | "`<path>` is missing for level '`<Name>`'" (C6) | A settings entry without its `base/<slug>.ruleset.json`. | Create the file (sections 4 to 6). |
 | "Unresolved basedOn '`<slug>`' of level '`<Name>`'" or "basedOn cycle: ..." (C5) | `basedOn` names a level file that does not exist, or the chain loops. | Point `basedOn` at an existing `base/<slug>.ruleset.json`. |
 | "levels entry '`<Name>`' does not lowercase to a slug matching ^[a-z0-9-]+$" (C5) | A name with a space or another character a slug cannot hold. | Use letters, digits and hyphens. |
-| "entry `<n>` names unknown `<slug>`; use a slug from the settings or ["*"]" (C10) | An override names a removed or renamed level or stage (also an alias's original slug, section 5). | Retarget or remove the entry. |
+| "entry `<n>` names unknown level '`<slug>`'; use a slug from the settings or ["*"]" (or "unknown stage '`<slug>`'") (C10) | An override names a removed or renamed level or stage (also an alias's original slug, section 5). | Retarget or remove the entry. |
 | "`<id>` is None in every published level, so this stage entry never applies (S-4)" (C8, warning) | A stage entry for a rule no published level turns on, for example with Off as the only level. | Expected with Off alone; otherwise remove the entry. |
 | "`<file>` names no stage of the settings, so its ids are not quarantined anywhere; ..." (C16, warning) | The quarantine file of a removed stage. | Delete it, or add the stage back. |
+| "`<id>` is `<Action>`, which level `<slug>` already gives" (C9, warning) | An entry in your level file repeats what the level below gives, for example in a House or alias file. | Remove the entry. |
+| "Updates available: run the Update Rulebook System Files workflow (`<n>` files)" (Validate warning) | The settings changed the set and the generated files do not follow yet, or the template moved ([updating.md](updating.md) section 3). In the live run the change pull requests showed it with 7, 25, 8 and 11 files (*observed*). | Take the branch route (section 3). |
 | "_N of M endpoint tables of the effective diff were left out to keep this body below the GitHub limit; the job summary of the update run has them all._" | Large endpoints (an Off level lists 605 rules) in an update pull request. | Read the job summary of the update run. |
 | "No effective change." in an update that creates or deletes endpoints | The branch already declared the change; the effective diff compares inputs, not files (*observed*). | Nothing to fix; the change list shows the files. |
 | "Run the script from the root of a clone of your rulebook repository (the folder with .github/Rulebook-Settings.json and catalog/diagnostics.json): `<path>`" | `New-RulebookOffLevel.ps1` ran in another folder. | Change to the clone root, or pass `-RepositoryRoot`. |
 | "base/off.ruleset.json exists and differs; it is owned by this repository. Use -Force to overwrite it (your own edits in it are lost)" | The file was written from another catalog or edited since. | Keep it, or rerun with `-Force` to rewrite it from the current catalog. |
+| "Cannot read .github/Rulebook-Settings.json (...); the level counts as not listed" (warning) | The settings file is not valid JSON. | The script still writes the file; fix the settings and paste the entry. |
 | "base/off.ruleset.json is current (`<n>` ids at None; only the line endings of the working copy differ)" | A clone with `core.autocrlf` true; the content is current. | Nothing to do. |
 | "'`<Name>`' is already a published level; -Force would replace base/`<slug>`.ruleset.json with an everything-off file" (warning) | `-Name` names one of your levels, for example `-Name Strict`. | Use another name; `-Force` would replace that level's rules. |
 | "Level '`<Name>`' cannot have a page: its slug collides with the index README.md" | A level named README. | Choose another name. |
