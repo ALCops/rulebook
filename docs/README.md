@@ -1,6 +1,6 @@
 # Rulebook user documentation
 
-Index of the user-facing documentation. The pages marked *planned* do not exist yet and are written in work package WP11 of rulebook-engine ([#13](https://github.com/ALCops/rulebook-engine/issues/13)).
+Index of the user-facing documentation. The pages marked *planned* do not exist yet and are written in work package WP11 of rulebook-engine ([#13](https://github.com/ALCops/rulebook-engine/issues/13)) unless the row names another work package.
 
 | Page | Intent | Status |
 |---|---|---|
@@ -12,7 +12,7 @@ Index of the user-facing documentation. The pages marked *planned* do not exist 
 | `al-go.md` | Walkthrough for AL-Go building on `al-project.md`: `rulesetFile` per workflow, NextMajor, shipping `.rulebook/` in a custom AL-Go template. The `GHTOKENWORKFLOW` secret both share is in [`ghtokenworkflow.md`](ghtokenworkflow.md). | planned |
 | `azure-devops.md` | ALOps compile task inputs, BcContainerHelper parameters, custom `alc` calls. | planned |
 | `vscode.md` | Walkthrough for VS Code building on `al-project.md`: workspace settings, the Problems pane, when the editor re-fetches, troubleshooting. | planned |
-| `levels.md` | What each shipped level (Essential, Recommended, Strict, Complete) contains, how to pick one, how to add or insert your own, how to publish a level under another name, how to stop publishing one. The same for stages (`default`, `CI`, `vNext`). | planned |
+| [`levels.md`](levels.md) | Levels and starting points: what each shipped level (Essential, Recommended, Strict, Complete) contains with links to its generated page, how to pick a starting point (closest level plus overrides, everything off with a script, no maintenance), the branch route that gets the endpoints onto a pull request before the merge, adding a level, publishing one under another name, adding a stage, removing a level or stage, how your levels show up, troubleshooting. | written (WP10, #12) |
 | [`changing-a-rule.md`](changing-a-rule.md) | The Change Rule workflow: the form, reading its pull request (before and after per endpoint, with the input that decides), when nothing is written, pull request or direct commit, your own levels and stages in the form, troubleshooting. | written |
 | [`overrides.md`](overrides.md) | The `overrides.json` file: entries and selectors (slugs or `*`), which entry wins, precedence over the twins setting, the level and stage files and the quarantine, an override at the analyzer default, editing by hand. | written |
 | [`quarantine.md`](quarantine.md) | New diagnostics and quarantine: the daily scan, choosing the quarantine policy, reading its pull request, adopting a quarantined rule, changed default severities, the catalog and its flags, running it by hand, troubleshooting. | written |
