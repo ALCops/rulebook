@@ -51,6 +51,7 @@ The file is org-owned: the update never touches it ([updating.md](updating.md) s
 
 - `["*"]`: every level (or stage) in your settings, including the ones you add later.
 - A list of slugs: `["strict"]`, `["strict", "complete"]`. A slug is the lowercased `name` from the settings: the level `Strict` is `strict`, the stage `vNext` is `vnext`, the stage `default` is `default`.
+- A level slug matches only that level's endpoints, never the levels based on it: `["strict"]` changes `strict` and its stages, not `complete`, although Complete is based on Strict. Name both, or use `*`.
 - `*` stands alone: `["*", "strict"]` is rejected. A plain string (`"strict"` without brackets) is rejected too.
 
 A slug that is not in your settings fails validation (C10, "entry `<n>` names unknown level '`<slug>`'; use a slug from the settings or ["*"]"). Removing a level or stage from the settings therefore means removing it from the overrides that name it.
@@ -69,14 +70,14 @@ The Change Rule workflow keeps one entry per selection: running it for a selecti
 
 ## 4. Precedence over the other inputs
 
-For each diagnostic in each endpoint, the first of these that has something to say decides ([D19](https://github.com/ALCops/rulebook-engine/blob/main/docs/adr/0019-organization-overrides-and-quarantine-are-generator-inputs.md), [D41](https://github.com/ALCops/rulebook-engine/blob/main/docs/adr/0041-quarantine-wins-over-a-stage-entry-for-an-unmentioned-id.md)):
+For each diagnostic in each endpoint, in this order ([D19](https://github.com/ALCops/rulebook-engine/blob/main/docs/adr/0019-organization-overrides-and-quarantine-are-generator-inputs.md), [D41](https://github.com/ALCops/rulebook-engine/blob/main/docs/adr/0041-quarantine-wins-over-a-stage-entry-for-an-unmentioned-id.md)):
 
-1. **An override** that matches the diagnostic, level and stage.
-2. **The twins setting**: the losing side of a pair of rules that check the same thing is `None` ([pte-or-appsource.md](pte-or-appsource.md)).
-3. **The stage file**, but only where the level result is not `None`: a stage never switches a rule on.
-4. **The level chain**: the level's own file and the files it is based on.
-5. **Quarantine**: `None` for a new diagnostic the stage holds back ([quarantine.md](quarantine.md)).
-6. **The analyzer default.**
+1. **An override** that matches the diagnostic, level and stage decides.
+2. Else **the twins setting**: the losing side of a pair of rules that check the same thing is `None` ([pte-or-appsource.md](pte-or-appsource.md)).
+3. Else the **level result** is worked out first: the level's own file and the files it is based on when one of them mentions the diagnostic; otherwise `None` when the stage's quarantine file lists it ([quarantine.md](quarantine.md)); otherwise the analyzer default.
+4. **The stage file** then changes that level result, but only where it is not `None`: a stage never switches a rule on, also not one quarantine holds back. Where the stage file has no entry, or the level result is `None`, the level result stands.
+
+So a new diagnostic in quarantine shows `None` (source `quarantine`) in that stage even when the stage file lists it, until a level file mentions it.
 
 An override therefore beats everything: it can switch on a rule a level turns off, a rule the twins setting lowers, and a rule only quarantine mentions. It does not remove that quarantine entry; delete it in the same change when the override is your decision ([quarantine.md](quarantine.md) section 4).
 
@@ -84,14 +85,14 @@ An override therefore beats everything: it can switch on a rule a level turns of
 
 An endpoint lists only the diagnostics whose action differs from the analyzer default. An override whose action is the default is valid, and its effect is that the diagnostic disappears from the endpoint: the compiler then applies the default by itself, and a project can switch it off with `suppressWarnings` in `app.json` ([al-project.md](al-project.md) section 6). The Change Rule pull request says so per endpoint: "now unlisted in recommended.ci: Warning equals the analyzer default".
 
-An entry that changes nothing at all, because the levels or a more specific entry already give that action everywhere it applies, is not written by the workflow ([changing-a-rule.md](changing-a-rule.md) section 4).
+A new entry that would change no endpoint, because the levels or a more specific entry already give that action everywhere it applies, is not written by the workflow, and neither is an entry it would leave as it is. Everything else is written even when no endpoint changes: a remove, a new action for an existing entry that a more specific entry hides, a new justification, removed duplicates ([changing-a-rule.md](changing-a-rule.md) section 4).
 
 ## 6. Editing by hand
 
 You can edit the file directly, for example to give one entry two levels, or to clear a justification. Then:
 
 - **Regenerate the endpoints in the same pull request.** A changed `overrides.json` leaves `rulesets/` out of date; Validate fails with C12 and Publish refuses to deploy. Regenerate locally with the engine module, or merge and run Update Rulebook System Files with "Resolve the latest commit" off, as described in [quarantine.md](quarantine.md) section 4.
-- **Keep the layout if you like it.** The Change Rule workflow reads comments and trailing commas, and the next run it makes rewrites the file in its one-entry-per-line layout.
+- **Expect the layout to change.** The Change Rule workflow reads `//` and `/* */` comments and trailing commas, and the next change it writes rewrites the file in its one-entry-per-line layout: comments are dropped then.
 - **Validate checks the file**: the schema, the actions and the selectors (C10).
 
 The Change Rule workflow does all three for one entry, so a hand edit is only needed for what the form does not offer.

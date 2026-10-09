@@ -66,7 +66,7 @@ None of these annotations fails Validate or counts as a warning, also with `fail
 "update": { "schedule": null, "check": false }
 ```
 
-Validate then skips the comparison and says `Update check off (update.check is false)` in its log. The key lives in your settings, so it survives updates; the template does not ship it, and absent means on. Editing `checkForUpdates` on the Validate step of `Validate.yaml` is not the way: that workflow is a system file, and the next update replaces it. An explicit `checkForUpdates: 'true'` or `'false'` on the step still wins over the setting, for a workflow of your own that calls the Validate action.
+Validate then skips the comparison and says `Update check off (update.check is false)` in its log. The key lives in your settings, so it survives updates; the template does not ship it, and absent means on. Adding `checkForUpdates: 'false'` to the Validate step of `Validate.yaml` (the shipped workflow does not set it) works only until the next update replaces that system file; the setting is the lasting switch. An explicit `checkForUpdates: 'true'` or `'false'` on the step still wins over the setting, for a workflow of your own that calls the Validate action.
 
 ## 4. The pull request
 
