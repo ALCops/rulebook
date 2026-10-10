@@ -91,6 +91,7 @@ When all three open, your rulebook is live. Optionally, run Actions > **Update R
 
 - Point your AL projects at the endpoints: [VS Code](vscode.md), [AL-Go for GitHub](al-go.md) or [Azure DevOps and other pipelines](azure-devops.md). The project side (the `.rulebook/` folder, exceptions, `suppressWarnings`) is [al-project.md](al-project.md).
 - Projects that build per-tenant extensions or AppSource apps opt out of the other kind's rules: [pte-or-appsource.md](pte-or-appsource.md).
+- Moving from an existing ruleset tree: [migration.md](migration.md).
 - From here the workflows run by themselves: the daily scan keeps one pull request with new diagnostics ([quarantine.md](quarantine.md)), Validate tells you when a template update is available ([updating.md](updating.md)), and the Change Rule form changes a rule for your organization ([changing-a-rule.md](changing-a-rule.md)).
 
 ## 10. Troubleshooting
