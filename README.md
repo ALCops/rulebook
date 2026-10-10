@@ -10,7 +10,7 @@ Rulebook is a GitHub template plus automation for managing the ruleset files tha
 
 1. [What Rulebook does](#1-what-rulebook-does)
 2. [How it fits together](#2-how-it-fits-together)
-3. [Getting started (planned)](#3-getting-started-planned)
+3. [Getting started](#3-getting-started)
 4. [Consumer paths](#4-consumer-paths)
 5. [Documentation](#5-documentation)
 6. [Related repositories](#6-related-repositories)
@@ -45,29 +45,29 @@ flowchart LR
 
 An endpoint URL has the form `<baseUrl>/rulesets/<level>.<stage>.ruleset.json`, or `<baseUrl>/rulesets/<level>.ruleset.json` for the `default` stage. Level and stage names are lowercased in the URL: `https://contoso.github.io/rulebook/rulesets/strict.ci.ruleset.json`, `https://contoso.github.io/rulebook/rulesets/strict.ruleset.json`. Every endpoint is generated from the level's chain of files, the stage file, your `twins` setting, `overrides.json` and quarantine files. It lists the diagnostics whose action differs from the analyzer default and has no includes.
 
-## 3. Getting started (planned)
+## 3. Getting started
 
 1. Press **Use this template** and create your org rulebook repo.
-2. Set the publish target, the quarantine policy and, if every project you build is of one kind, the `twins` setting in `.github/Rulebook-Settings.json`. The same file lists the levels and stages; add, alias or remove entries if the shipped set does not fit ([docs/levels.md](docs/levels.md)).
-3. Turn on GitHub Pages once (Settings > Pages > Source **GitHub Actions**), set `baseUrl` in the settings to the site address, and merge. The **Publish** workflow publishes the endpoints, the skeletons, `rulebook.json` and an index page, and checks every URL. See [docs/hosting.md](docs/hosting.md).
-4. Download the skeleton files for your level from the index page at `baseUrl` (they carry your URL) into an AL project as `.rulebook/<stage>.ruleset.json` and point `al.ruleSetPath` (VS Code) or `rulesetFile` (AL-Go) at the file for that stage. A skeleton includes one endpoint URL and nothing else. The init script `Get-RulebookSkeletons.ps1` does the download for you, one file per stage; the index page shows the two commands. The details, including where project exceptions go, are in [docs/al-project.md](docs/al-project.md).
-5. Opt out of the rules written for the other kind of extension, as described in [docs/pte-or-appsource.md](docs/pte-or-appsource.md). Add project-specific exceptions to the `rules` array of each stage's local file, repeated in every stage they apply to; organization-wide changes go through the **Change Rule** workflow into `overrides.json` ([docs/changing-a-rule.md](docs/changing-a-rule.md)).
+2. In `.github/Rulebook-Settings.json`, set `baseUrl`, the quarantine policy and, if every project you build is of one kind, the `twins` setting.
+3. Turn on GitHub Pages once (Settings > Pages > Source **GitHub Actions**) and add the `GHTOKENWORKFLOW` secret for the workflows that write ([docs/ghtokenworkflow.md](docs/ghtokenworkflow.md)).
+4. Merge and run **Publish**; `<baseUrl>/` then lists every endpoint and skeleton ([docs/hosting.md](docs/hosting.md)).
+5. Point your AL projects at the endpoints: [VS Code](docs/vscode.md), [AL-Go for GitHub](docs/al-go.md), [Azure DevOps and other pipelines](docs/azure-devops.md).
 
-The detailed walkthroughs are listed in [docs/README.md](docs/README.md).
+The full walkthrough, with the checks after each step, is [docs/getting-started.md](docs/getting-started.md); every page is listed in [docs/README.md](docs/README.md).
 
 ## 4. Consumer paths
 
-| Consumer | Setting | Typical stage | External rulesets |
-|---|---|---|---|
-| VS Code AL extension | `al.ruleSetPath` (local file or URL) | `default` | `al.enableExternalRulesets`, default true |
-| AL-Go for GitHub | `rulesetFile` in `.AL-Go/settings.json`, per workflow via `.github/<Workflow>.settings.json` | `ci`; `vnext` in `.github/NextMajor.settings.json` | `enableExternalRulesets` |
-| BcContainerHelper / custom PowerShell | `-rulesetFile` | `ci` | `-enableExternalRulesets` |
-| ALOps (Azure DevOps) | ruleset input of the compile task | `ci` | corresponding input |
-| `alc` directly | `/ruleset:<path>` | any | `/enableexternalrulesets` (default false) |
+| Consumer | Setting | Typical stage | External rulesets | Walkthrough |
+|---|---|---|---|---|
+| VS Code AL extension | `al.ruleSetPath` (local file or URL) | `default` | `al.enableExternalRulesets`, default true | [docs/vscode.md](docs/vscode.md) |
+| AL-Go for GitHub | `rulesetFile` in `.AL-Go/settings.json`, per workflow via `.github/<workflow name>.settings.json` | `ci`; `vnext` in `.github/Test Next Major.settings.json` | `enableExternalRulesets` | [docs/al-go.md](docs/al-go.md) |
+| BcContainerHelper / custom PowerShell | `-rulesetFile` | `ci` | `-enableExternalRulesets` | [docs/azure-devops.md](docs/azure-devops.md) |
+| ALOps (Azure DevOps) | `ruleset` input of `ALOpsAppCompiler@3` | `ci` | `enable_external_rulesets` | [docs/azure-devops.md](docs/azure-devops.md) |
+| `alc` directly | `/ruleset:<path>` | any | `/enableexternalrulesets` (default false) | [docs/azure-devops.md](docs/azure-devops.md) |
 
 ## 5. Documentation
 
-User documentation lives in [docs/](docs/README.md) in this repository. Architecture, decisions and references live in [rulebook-engine/docs](https://github.com/ALCops/rulebook-engine/tree/main/docs); the work packages are issues on the [Rulebook v1 board](https://github.com/orgs/ALCops/projects/1). When version 1.0 ships, the user documentation moves to [alcops.dev](https://alcops.dev).
+User documentation lives in [docs/](docs/README.md) in this repository: start with [getting-started.md](docs/getting-started.md), the consumer walkthroughs and the [FAQ](docs/faq.md). Architecture, decisions and references live in [rulebook-engine/docs](https://github.com/ALCops/rulebook-engine/tree/main/docs); the work packages are issues on the [Rulebook v1 board](https://github.com/orgs/ALCops/projects/1). When version 1.0 ships, the user documentation moves to [alcops.dev](https://alcops.dev).
 
 **Issues and contributions.** Issues are disabled on this repository. Report problems and ideas in [ALCops/rulebook-engine](https://github.com/ALCops/rulebook-engine/issues); status and order of the work are on the [Rulebook v1 board](https://github.com/orgs/ALCops/projects/1). Organizations that create their own repository from this template handle issues there as they see fit.
 
