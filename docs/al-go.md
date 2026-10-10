@@ -68,12 +68,13 @@ The ALCops analyzers run in AL-Go through the `PipelineInitialize.ps1` hook of [
 
 ## 4. The next-major build on vnext
 
-The **Test Next Major** workflow builds against the next major version of Business Central. AL-Go reads a workflow-specific settings file `.github/<workflow name>.settings.json` after the project settings, so its values win. The workflow name is the `name:` of the workflow with leading and trailing spaces and characters not allowed in a file name removed: `' Test Next Major'` becomes `Test Next Major`. The AL-Go-PTE and AL-Go-AppSource templates ship `.github/Test Next Major.settings.json` already (with `artifact` and a few other settings). Keep your file's own `$schema` and values, and add one line:
+The **Test Next Major** workflow builds against the next major version of Business Central. AL-Go reads a workflow-specific settings file `.github/<workflow name>.settings.json` after the project settings, so its values win. The workflow name is the `name:` of the workflow with leading and trailing spaces and characters not allowed in a file name removed: `' Test Next Major'` becomes `Test Next Major`. The AL-Go-PTE and AL-Go-AppSource templates ship `.github/Test Next Major.settings.json` already (with `artifact` and a few other settings). Keep your file's own `$schema` and values, and add this line:
 
 ```json
 "rulesetFile": "MyApp/.rulebook/vnext.ruleset.json"
 ```
- The path starts at the project folder here too. A `.github/<workflow>.settings.json` applies to every project of the repository; for one project only, use `<project>/.AL-Go/Test Next Major.settings.json` ([where are the settings located](https://github.com/microsoft/AL-Go/blob/main/Scenarios/settings.md#where-are-the-settings-located)).
+
+The path starts at the project folder here too. A `.github/<workflow>.settings.json` applies to every project of the repository; for one project only, use `<project>/.AL-Go/Test Next Major.settings.json` ([where are the settings located](https://github.com/microsoft/AL-Go/blob/main/Scenarios/settings.md#where-are-the-settings-located)).
 
 ## 5. Stages and workflows
 

@@ -83,7 +83,7 @@ In all three, `-enableExternalRulesets` adds `/enableexternalrulesets`. The cops
 
 ## 5. Plain alc
 
-**External rulesets are off by default on the command line, the opposite of VS Code.** Pass both switches. `$AL_BIN` is the folder of the `alc.dll` that runs; spike (c) shows how to find it ([recipe](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/spikes/c-alc-on-ubuntu.md#recipe)). The two switches are listed by `al compile --help` rather than on Microsoft Learn, which documents the failure they guard against ([AL1033](https://learn.microsoft.com/dynamics365/business-central/dev-itpro/developer/diagnostics/diagnostic-al1033)):
+**External rulesets are off by default on the command line, the opposite of VS Code.** Pass both switches. `$AL_BIN` is the folder of the `alc.dll` that runs; spike (c) shows how to find it ([recipe](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/spikes/c-alc-on-ubuntu.md#recipe)). The two switches belong to the compiler (`al compile` passes its arguments on to `alc`). Microsoft Learn does not list them, but documents the failure they guard against ([AL1033](https://learn.microsoft.com/dynamics365/business-central/dev-itpro/developer/diagnostics/diagnostic-al1033)); both were observed in spike (c):
 
 ```bash
 al compile /project:MyApp /packagecachepath:MyApp/.alpackages /out:MyApp/out.app \
