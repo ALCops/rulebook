@@ -12,6 +12,7 @@
 4. [Precedence over the other inputs](#4-precedence-over-the-other-inputs)
 5. [An override at the analyzer default](#5-an-override-at-the-analyzer-default)
 6. [Editing by hand](#6-editing-by-hand)
+7. [Troubleshooting](#7-troubleshooting)
 
 ## 1. The file
 
@@ -96,3 +97,17 @@ You can edit the file directly, for example to give one entry two levels, or to 
 - **Validate checks the file**: the schema, the actions and the selectors (C10).
 
 The Change Rule workflow does all three for one entry, so a hand edit is only needed for what the form does not offer.
+
+**To confirm an override works**, check that Validate passes on the pull request, then open an endpoint it selects on your site after Publish, for example `<baseUrl>/rulesets/strict.ci.ruleset.json`: the id is listed with the override's action, or is gone when that action is the analyzer default (section 5).
+
+## 7. Troubleshooting
+
+| Message | Cause | Fix |
+|---|---|---|
+| C10 "entry `<n>` names unknown level '`<slug>`'; use a slug from the settings or ["*"]" (or "unknown stage") | A selector names a slug your settings do not have: a typo, the name instead of the lowercase slug, or a level or stage you removed. | Use the slug from the settings or `"*"` (section 2). |
+| C10 "overrides.json does not match rulebook-overrides.schema.json: ..." | The file breaks the schema: a plain string instead of an array, `["*", "strict"]`, an empty list, `Default` as the action, an id of the wrong shape, an unknown key. | Fix the entry the message names (section 1 and 2). |
+| C10 "overrides.json is not valid JSON" | A syntax error after a hand edit. | Fix the JSON; the Change Rule workflow writes valid files. |
+| C7 "`<id>` is not in catalog/diagnostics.json (...)" | The id is unknown to your catalog: a typo, or a diagnostic of a package version the scan has not read yet. A warning until the first scan, an error after it. | Fix the id, or wait for the scan to record it ([quarantine.md](quarantine.md)). |
+| C12 "rulesets/`<file>` would be modified; run Update-RulebookEndpoints and commit the result" | The file was edited by hand and the endpoints were not regenerated. | Regenerate in the same pull request (section 6). |
+| The Change Rule run reports a no-op and writes nothing | The entry would change no endpoint: the levels or a more specific entry already give that action (a dead entry). | Nothing to do, or pick another selection ([changing-a-rule.md](changing-a-rule.md) section 4). |
+| An override seems to have no effect in a project | The project's own `.rulebook` file has an exception for the id, or the consumer has not read the new endpoint yet. | Look at the project's `rules` ([al-project.md](al-project.md) section 5); reload VS Code after the publish ([vscode.md](vscode.md) section 4). |

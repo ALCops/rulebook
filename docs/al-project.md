@@ -2,7 +2,7 @@
 
 How an AL project uses your rulebook: which files it keeps, how VS Code and the pipelines point at them, where project exceptions go, when `suppressWarnings` in `app.json` works, and what happens when the endpoint cannot be read.
 
-> **Status:** written with WP06 of the engine ([#8](https://github.com/ALCops/rulebook-engine/issues/8)). This page states the facts, with their sources; it is not a walkthrough. The walkthroughs [`vscode.md`, `al-go.md` and `azure-devops.md`](README.md) build on it (WP11, planned). The design behind it is the engine's [ARCHITECTURE.md section 6.3](https://github.com/ALCops/rulebook-engine/blob/main/docs/ARCHITECTURE.md#63-skeletons-r3).
+> **Status:** written with WP06 of the engine ([#8](https://github.com/ALCops/rulebook-engine/issues/8)). This page states the facts, with their sources; it is not a walkthrough. The walkthroughs [vscode.md](vscode.md), [al-go.md](al-go.md) and [azure-devops.md](azure-devops.md) build on it (WP11). The design behind it is the engine's [ARCHITECTURE.md section 6.3](https://github.com/ALCops/rulebook-engine/blob/main/docs/ARCHITECTURE.md#63-skeletons-r3).
 
 ## Contents
 
@@ -91,12 +91,12 @@ The script lives in the engine and is served from its `main` branch until the `v
 |---|---|---|
 | VS Code | `al.ruleSetPath` in `.vscode/settings.json` | `.rulebook/default.ruleset.json` (relative to the workspace folder) |
 | VS Code | `al.enableExternalRulesets` | default `true`; leave it |
-| AL-Go for GitHub | `rulesetFile` in `.AL-Go/settings.json` | `.rulebook/ci.ruleset.json` (see the note below) |
+| AL-Go for GitHub | `rulesetFile` in `.AL-Go/settings.json` | the `ci` file, relative to the AL-Go project folder: `MyApp/.rulebook/ci.ruleset.json` (see the note below) |
 | AL-Go for GitHub | `enableExternalRulesets` | `true` |
-| AL-Go, next major | `rulesetFile` in `.github/NextMajor.settings.json` | `.rulebook/vnext.ruleset.json` (see the note below) |
+| AL-Go, next major | `rulesetFile` in `.github/Test Next Major.settings.json` | the `vnext` file, relative to the AL-Go project folder: `MyApp/.rulebook/vnext.ruleset.json` (see the note below) |
 | `alc` | `/ruleset:<path>` and `/enableexternalrulesets` | the file of the stage; external rulesets are **off** by default on `alc` |
 
-The VS Code row was observed in the WP06 live run: `.rulebook/default.ruleset.json` relative to the workspace folder. When the workspace folder is not the project folder (the repository root opened in VS Code, the app in `app/`), prefix the path with the project folder: `app/.rulebook/default.ruleset.json`. The init script prints paths relative to the folder it runs in. The AL-Go rows give the setting names and the recommended files; what AL-Go resolves a relative `rulesetFile` against (the repository root or the project folder) is not verified here and belongs to the AL-Go walkthrough (WP11).
+The VS Code row was observed in the WP06 live run: `.rulebook/default.ruleset.json` relative to the workspace folder. When the workspace folder is not the project folder (the repository root opened in VS Code, the app in `app/`), prefix the path with the project folder: `app/.rulebook/default.ruleset.json`. The init script prints paths relative to the folder it runs in. In AL-Go a relative `rulesetFile` is resolved against the AL-Go project folder (the folder with `.AL-Go/settings.json`, the repository root in a single-project repository), not the app folder, and the next-major workflow reads `.github/Test Next Major.settings.json` (from its workflow name); both are taken from the AL-Go source, see [al-go.md](al-go.md) sections 3 and 4.
 
 Sources: [compiler-ruleset-internals.md section 9](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/compiler-ruleset-internals.md#9-consumer-flags), the [AL-Go settings](https://github.com/microsoft/AL-Go/blob/main/Scenarios/settings.md) and Microsoft Learn's [AL extension configuration](https://learn.microsoft.com/dynamics365/business-central/dev-itpro/developer/devenv-al-extension-configuration).
 

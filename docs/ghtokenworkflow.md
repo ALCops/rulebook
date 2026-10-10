@@ -11,7 +11,7 @@ The update workflow writes to your rulebook repository: it changes files under `
 3. [A personal access token](#3-a-personal-access-token)
 4. [Where to put the secret](#4-where-to-put-the-secret)
 5. [A private template](#5-a-private-template)
-6. [When it fails](#6-when-it-fails)
+6. [Troubleshooting](#6-troubleshooting)
 
 ## 1. Why the workflow token is not enough
 
@@ -47,6 +47,8 @@ A GitHub App gives the update a short-lived token for one repository at a time. 
 
 On every run the update exchanges the App JSON for an installation token. The token is valid for one hour, limited to the rulebook repository, and has exactly the permissions above. It is masked in the log before anything else runs.
 
+**To confirm it works**, run Actions > **Update Rulebook System Files** once: the log shows "Write token: app" (`pat` for a personal access token) and the run ends with a pull request or "No updates available", not with one of the messages of section 6.
+
 ## 3. A personal access token
 
 A personal access token is used as it is, without an exchange. The pull request shows the token's owner as its author, and the commit is authored by the account that started the run, as with an App (code-derived: the live test used an App).
@@ -80,7 +82,7 @@ The update downloads the template with the workflow token first. A public templa
 
 The Validate check reads with the workflow token only, so for a private template it reports "update check skipped". Updating still works.
 
-## 6. When it fails
+## 6. Troubleshooting
 
 The token rows below apply to the update and to the Scan Diagnostics workflow alike (the scan's message says "to scan diagnostics" where the update's says "to update system files"); the scan's own messages are in [quarantine.md](quarantine.md) section 8.
 

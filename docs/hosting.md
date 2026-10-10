@@ -8,7 +8,7 @@ Your AL projects fetch their rules from URLs. This page explains where those URL
 
 1. [What gets published](#1-what-gets-published)
 2. [GitHub Pages](#2-github-pages)
-3. [When Publish fails](#3-when-publish-fails)
+3. [Troubleshooting](#3-troubleshooting)
 4. [Other hosts](#4-other-hosts)
 
 ## 1. What gets published
@@ -38,7 +38,7 @@ Publish never changes your repository. It publishes what is committed, and it st
    - `https://<owner>.github.io/<repository>`, for example `https://contoso.github.io/rulebook`;
    - `https://<owner>.github.io` if the repository is named `<owner>.github.io`;
    - your custom domain, if you set one (below).
-3. **Merge the change into `main`.** The Publish workflow runs on every push to `main` that changes `rulesets/`, `skeletons/`, the settings or the workflow itself, and you can run it by hand under Actions > Publish. After the first run, `baseUrl` opens the index page.
+3. **Merge the change into `main`.** The Publish workflow runs on every push to `main` that changes `rulesets/`, `skeletons/`, the settings or the workflow itself, and you can run it by hand under Actions > Publish. After the first run, `baseUrl` opens the index page. To confirm the site works, open `<baseUrl>/`, `<baseUrl>/rulebook.json` and one endpoint such as `<baseUrl>/rulesets/strict.ruleset.json`: all three must open without a redirect.
 
 Then set up your AL projects: the index page shows the two commands of the init script, which downloads the skeletons of a level into `.rulebook/`, one file per stage. See [al-project.md](al-project.md).
 
@@ -56,20 +56,20 @@ Publish waits until every URL serves the new file, for up to 11 minutes. In prac
 
 On GitHub Free a public repository that is made private loses its Pages site after about ten minutes. From then on every AL project that uses your endpoints fails to compile (AL1033). Making the repository public again does not bring the site back: turn on Pages again (step 1) and run Publish.
 
-## 3. When Publish fails
+## 3. Troubleshooting
 
-Publish checks before it deploys and after it deploys. Its message says what to change.
+Publish checks before it deploys and after it deploys. Its message says what to change; the first column is the start of the message.
 
-| Message starts with | What to do |
-|---|---|
-| `baseUrl is empty` | Set `baseUrl` as in step 2; the message proposes the value for your repository. |
-| `GitHub Pages is not enabled for this repository` | Step 1. On GitHub Free, also check that the repository is public and that Pages creation is allowed. If Pages is already on, check that the Publish workflow still grants `pages: write`. |
-| `The GitHub Pages site of this repository builds from a branch` | Settings > Pages > Source: **GitHub Actions**. |
-| `The plan of this account does not support GitHub Pages for a private repository` | Make the repository public or upgrade the plan. |
-| `An organization administrator has disabled Pages creation` | Ask an organization owner to allow Pages creation (Public). |
-| `The committed endpoints do not match their inputs` | `rulesets/` is out of date. Open a pull request that regenerates it; the Validate workflow names the files. |
-| `Publish target '...' is not implemented yet` | Set `publish.target` to `pages` (section 4). |
-| `... is missing`, `... serves a different body`, `... answers with a redirect` | After the deploy, a URL did not serve the committed file. Check `baseUrl` (a redirect means it is not the final address), then run Publish again. |
+| Message | Cause | Fix |
+|---|---|---|
+| `baseUrl is empty` | `baseUrl` is not set; expected on the first commit of a new repository. | Set `baseUrl` as in step 2; the message proposes the value for your repository. |
+| `GitHub Pages is not enabled for this repository` | Step 1 was not done, or the plan or the organization does not allow Pages here, or the workflow lost `pages: write`. | Step 1. On GitHub Free, also check that the repository is public and that Pages creation is allowed. If Pages is already on, check that the Publish workflow still grants `pages: write`. |
+| `The GitHub Pages site of this repository builds from a branch` | The Pages source is a branch, not GitHub Actions. | Settings > Pages > Source: **GitHub Actions**. |
+| `The plan of this account does not support GitHub Pages for a private repository` | A private repository on GitHub Free. | Make the repository public or upgrade the plan. |
+| `An organization administrator has disabled Pages creation` | The organization policy forbids new Pages sites. | Ask an organization owner to allow Pages creation (Public). |
+| `The committed endpoints do not match their inputs` | `rulesets/` is out of date. | Open a pull request that regenerates it; the Validate workflow names the files. |
+| `Publish target '...' is not implemented yet` | `publish.target` names a planned target. | Set `publish.target` to `pages` (section 4). |
+| `... is missing`, `... serves a different body`, `... answers with a redirect` | After the deploy, a URL did not serve the committed file. | Check `baseUrl` (a redirect means it is not the final address), then run Publish again. |
 
 ## 4. Other hosts
 
