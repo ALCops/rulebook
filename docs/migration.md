@@ -43,7 +43,7 @@ The compiler flattens a ruleset tree into one list before it applies it ([compil
 | An include with action `None` is not loaded at all. | Leave such an include out when you resolve. |
 | An include with action `Error`, `Warning`, `Info` or `Hidden` rewrites every rule of that file (and its includes) that is not `None` to that action. | Resolve the child first, then rewrite. |
 | A file included twice is read once (the first time); a cycle is cut. | Resolve each file once. |
-| `generalAction` sets the action of every id the tree does not list, and can only be raised by includes. | Check every root: Rulebook endpoints cannot carry it. Reproduce it per project with the consumer's own switch (for example `/warnaserror`), or accept the difference deliberately. |
+| `generalAction` sets the action of every id the tree does not list, and can only be raised by includes. | Check every root: Rulebook endpoints cannot carry it. Reproduce it per project with the consumer's own switch (`/warnaserror` for `Error`; the other values have no switch, so list the ids or accept the difference). |
 | Any error anywhere in the tree drops the whole tree (AL1033). | In VS Code the editor falls back to the analyzer defaults and shows AL1033 on `app.json`; `alc`, and so AL-Go and other pipelines, stops with exit code 1 and writes no `.app`. |
 | Without a `generalAction`, an id the tree does not mention runs at its analyzer default. | "Not mentioned" is a decision too: the default. |
 
@@ -72,7 +72,7 @@ The compiler flattens a ruleset tree into one list before it applies it ([compil
 
 ## 6. Worked example
 
-A synthetic tree of three files and two roots, all includes with action `Default`:
+A synthetic tree of three rule files and two root files, all includes with action `Default`:
 
 ```json
 // editor.ruleset.json
