@@ -58,7 +58,7 @@ Rules that fire in a project they were not written for. "From" is the first Rule
 
 | Id | Title | Default | From | Why it bites a per-tenant extension |
 |---|---|---|---|---|
-| AS0013 | The field identifier must be within the allowed range | Error | Essential | Requires field ids inside `idRanges` and outside 50000..99999. |
+| AS0013 | The field identifier must be within the allowed range | Error | Essential | A table extension field outside `idRanges` fires AS0013. The message also names 50000..99999, but only AS0084 checks that range. (Per the code, 1..49999 is also accepted when the extended table is in the same app or has the same publisher; not observed.) |
 | AS0084 | The ID range assigned to the extension must be within the allowed range | Error | Recommended | Requires `idRanges` inside the partner's AppSource range and outside 50000..99999. |
 | AS0054 | The AppSourceCop configuration must specify the set of affixes | Error | Recommended | Fires in every project without `mandatoryAffixes` in `AppSourceCop.json`. Configure affixes or opt out. |
 | AS0011, AS0098, AS0079, AS0150, AS0151 | Affix rules | Error, Warning, Warning, Error, Info | Recommended | Only fire once affixes are configured. Keep them if you use affixes. AS0151 is listed from Strict upward (Warning): use route C (project ruleset) there, `suppressWarnings` is a silent no-op. |
