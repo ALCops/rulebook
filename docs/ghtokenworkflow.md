@@ -47,7 +47,7 @@ A GitHub App gives the update a short-lived token for one repository at a time. 
 
 On every run the update exchanges the App JSON for an installation token. The token is valid for one hour, limited to the rulebook repository, and has exactly the permissions above. It is masked in the log before anything else runs.
 
-**To confirm it works**, run Actions > **Update Rulebook System Files** once: the log shows "Write token: app" and the run ends with a pull request or "No updates available", not with one of the messages of section 6.
+**To confirm it works**, run Actions > **Update Rulebook System Files** once: the log shows "Write token: app" (`pat` for a personal access token) and the run ends with a pull request or "No updates available", not with one of the messages of section 6.
 
 ## 3. A personal access token
 

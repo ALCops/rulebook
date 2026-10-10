@@ -33,12 +33,12 @@ In `.vscode/settings.json` of the workspace folder:
 }
 ```
 
-| Setting | Value |
-|---|---|
-| `al.ruleSetPath` | The `default` skeleton, relative to the workspace folder. Pointing it straight at the endpoint URL works too, but then the project has no file for its own exceptions ([al-project.md](al-project.md) section 3). |
-| `al.enableCodeAnalysis` | `true`. The default is `false`: without it no analyzer runs and the ruleset changes nothing. |
-| `al.codeAnalyzers` | The analyzers to run: `${CodeCop}`, `${UICop}`, `${PerTenantExtensionCop}` or `${AppSourceCop}`, and the paths of other analyzer DLLs such as ALCops. A rule of an analyzer that does not run never fires. Which of the two Microsoft cops to run: [pte-or-appsource.md](pte-or-appsource.md). |
-| `al.enableExternalRulesets` | `true`, the extension's default; keep it. Set to `false`, the URL include of the skeleton fails with AL1033 and the editor falls back to the analyzer defaults (section 8). |
+| Setting | Value | Microsoft Learn |
+|---|---|---|
+| `al.ruleSetPath` | The `default` skeleton, relative to the workspace folder. Pointing it straight at the endpoint URL works too, but then the project has no file for its own exceptions ([al-project.md](al-project.md) section 3). | [Rule Set Path](https://learn.microsoft.com/dynamics365/business-central/dev-itpro/developer/devenv-al-extension-configuration), [ruleset syntax](https://learn.microsoft.com/dynamics365/business-central/dev-itpro/developer/devenv-rule-set-syntax-for-code-analysis-tools) |
+| `al.enableCodeAnalysis` | `true`. The default is `false`: without it no analyzer runs and the ruleset changes nothing. | [Enable Code Analysis](https://learn.microsoft.com/dynamics365/business-central/dev-itpro/developer/devenv-al-extension-configuration) |
+| `al.codeAnalyzers` | The analyzers to run: `${CodeCop}`, `${UICop}`, `${PerTenantExtensionCop}` or `${AppSourceCop}`, and the paths of other analyzer DLLs such as ALCops. A rule of an analyzer that does not run never fires. Which of the two Microsoft cops to run: [pte-or-appsource.md](pte-or-appsource.md). | [Code Analyzers](https://learn.microsoft.com/dynamics365/business-central/dev-itpro/developer/devenv-al-extension-configuration) |
+| `al.enableExternalRulesets` | `true`; keep it. Learn states no default; the extension's source defaults it to `true`. Set to `false`, the URL include of the skeleton fails with AL1033 and the editor falls back to the analyzer defaults (section 8). | [Enable External Rulesets](https://learn.microsoft.com/dynamics365/business-central/dev-itpro/developer/devenv-al-extension-configuration) |
 
 ## 3. When the workspace folder is not the app
 
@@ -52,7 +52,7 @@ In a multi-root workspace (a `.code-workspace` file with one folder per app), ea
 
 ## 4. When VS Code reads the ruleset again
 
-VS Code does not notice by itself that your rulebook changed, and shows no hint that it did. It reads the ruleset again on:
+VS Code does not notice by itself that your rulebook changed, and shows no hint that it did; Microsoft Learn says the same and advises reloading the window ([using the code analysis tool with a ruleset](https://learn.microsoft.com/dynamics365/business-central/dev-itpro/developer/devenv-using-code-analysis-tool-with-rule-set)). It reads the ruleset again on:
 
 | Trigger | Reads again |
 |---|---|
@@ -81,7 +81,7 @@ After you edit `suppressWarnings`, save `app.json` in the editor; if the Problem
 
 ## 7. Check that it works
 
-1. Pick a probe from `<baseUrl>/rulesets/<level>.ruleset.json` (the `default` stage). On Strict and Complete, `AA0247` ("Use namespaces", CodeCop, default Info) is listed at `Warning`; on Essential, `AA0137` (an unused variable, default Warning) is listed at `None`.
+1. Pick a probe from `<baseUrl>/rulesets/<level>.ruleset.json` (the `default` stage). On Strict and Complete, `AA0247` ("Use namespaces", CodeCop, default Info) is listed at `Warning`; on Essential, `AA0137` (an unused variable, default Warning) is listed at `None`. On Recommended, or a level of your own, neither may be listed: add a temporary exception `{ "id": "AA0137", "action": "None" }` to the `rules` of `.rulebook/default.ruleset.json` instead, which proves that the file is applied (and no AL1033 on `app.json` proves that its include loaded).
 2. Add code that breaks it: for `AA0247` a codeunit without a `namespace` line (AA0247 needs only `System.app` among the symbols); for `AA0137` a local variable that is never used.
 3. Run **Developer: Reload Window**. Expect the Problems pane to show `AA0247` as a **Warning** (without the ruleset it is Information), or no `AA0137` (without the ruleset it is a Warning).
 

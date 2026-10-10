@@ -2,7 +2,7 @@
 
 How a pipeline outside AL-Go for GitHub compiles against your rulebook: the ALOps compile task, BcContainerHelper, and a plain `alc` call. All three take the same two things: the path of the stage's skeleton file and the switch that allows its URL include.
 
-> **Status:** written 2026-10-10 with WP11 of the engine ([#13](https://github.com/ALCops/rulebook-engine/issues/13)). The ALOps inputs are taken from the ALOps documentation of `ALOpsAppCompiler@3` (as of its revision of 2026-03-03); the sample was not run, because ALOps needs a license. The BcContainerHelper parameters are taken from the BcContainerHelper source (`Run-AlPipeline`, `Compile-AppInBcContainer`, `Compile-AppWithBcCompilerFolder`). The `alc` command line was observed in the engine's [spike (c)](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/spikes/c-alc-on-ubuntu.md). The project-side facts are in [al-project.md](al-project.md).
+> **Status:** written 2026-10-10 with WP11 of the engine ([#13](https://github.com/ALCops/rulebook-engine/issues/13)). The ALOps inputs are taken from the ALOps documentation of `ALOpsAppCompiler@3` (as of its revision of 2026-03-03); the sample was not run. The BcContainerHelper parameters are taken from the BcContainerHelper source (`Run-AlPipeline`, `Compile-AppInBcContainer`, `Compile-AppWithBcCompilerFolder`). The `alc` command line was observed in the engine's [spike (c)](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/spikes/c-alc-on-ubuntu.md). The project-side facts are in [al-project.md](al-project.md).
 
 ## Contents
 
@@ -49,7 +49,7 @@ The ALOps compile task, `ALOpsAppCompiler@3` (inputs from the [ALOps documentati
 
 | Input | Value |
 |---|---|
-| `ruleset` | The stage's skeleton. A path that starts with `.` is resolved against `alsourcepath`; an `https` URL is downloaded by the task. **Set it explicitly**: when it is empty, the task takes `al.ruleSetPath` from `.vscode/settings.json`, which is the `default` stage, not `ci`. `NONE` turns rulesets off. |
+| `ruleset` | The stage's skeleton. A path that starts with `.` is resolved against `alsourcepath` (in serial mode per app, per the documentation); with several apps keep one `.rulebook/` per app and one task per app, or point `ruleset` at one shared file (not run). An `https` URL is downloaded by the task. **Set it explicitly**: when it is empty, the task takes `al.ruleSetPath` from `.vscode/settings.json`, which is the `default` stage, not `ci`. `NONE` turns rulesets off. |
 | `enable_external_rulesets` | `true`: passes `/enableexternalrulesets` to the compiler, so the URL include of the skeleton loads. Default `false`. Serial mode only: in parallel mode (`compilation_mode: Parallel`) the documentation says it is silently ignored, so the include fails with AL1033 (section 6). |
 | `alcodeanalyzer` | The analyzers to run in serial mode (`CodeCop`, `UICop`, `AppSourceCop`, `PTECop`, or DLL paths for others such as ALCops); a rule of an analyzer that does not run never fires. In parallel mode the input is `analyzers`. |
 | `failonwarnings` | `true` fails the task on any warning, so the rules your endpoint lists at Warning fail the build too. Default `false`. |
@@ -60,6 +60,8 @@ Older versions of the task (`ALOpsAppCompiler@2`) have the same `ruleset` and `e
 ## 4. BcContainerHelper
 
 The BcContainerHelper functions take `-rulesetFile` and the switch `-enableExternalRulesets` ([BcContainerHelper](https://github.com/microsoft/navcontainerhelper)):
+
+Only the ruleset and analyzer parameters are shown; your call keeps its other parameters (`-artifact`, credentials and so on):
 
 ```powershell
 Run-AlPipeline `
@@ -81,7 +83,7 @@ In all three, `-enableExternalRulesets` adds `/enableexternalrulesets`. The cops
 
 ## 5. Plain alc
 
-**External rulesets are off by default on the command line, the opposite of VS Code.** Pass both switches:
+**External rulesets are off by default on the command line, the opposite of VS Code.** Pass both switches. `$AL_BIN` is the folder of the `alc.dll` that runs; spike (c) shows how to find it ([recipe](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/spikes/c-alc-on-ubuntu.md#recipe)). The two switches are listed by `al compile --help` rather than on Microsoft Learn, which documents the failure they guard against ([AL1033](https://learn.microsoft.com/dynamics365/business-central/dev-itpro/developer/diagnostics/diagnostic-al1033)):
 
 ```bash
 al compile /project:MyApp /packagecachepath:MyApp/.alpackages /out:MyApp/out.app \
@@ -104,9 +106,9 @@ When the compiler cannot load the endpoint (wrong URL, site down, external rules
 
 ## 7. Check that it works
 
-An endpoint lists only the rules whose action differs from the analyzer default, so any listed rule shows whether the ruleset reached the compiler.
+An endpoint lists only the rules whose action differs from the analyzer default, so a listed rule shows whether the ruleset reached the compiler.
 
-1. Pick a probe from `<baseUrl>/rulesets/<level>.ci.ruleset.json`. On Strict and Complete, `AA0247` ("Use namespaces", CodeCop, default Info) is listed at `Warning`; on Essential, `AA0137` (an unused variable, default Warning) is listed at `None`.
+1. Pick a probe. On Strict and Complete, `AA0247` ("Use namespaces", CodeCop, default Info) is listed at `Warning` in `<baseUrl>/rulesets/<level>.ci.ruleset.json`; on Essential, `AA0137` (an unused variable, default Warning) is listed at `None`. On Recommended, or a level of your own, neither may be listed: add a temporary exception `{ "id": "AA0137", "action": "None" }` to the `rules` of `.rulebook/ci.ruleset.json` instead, which proves that the file is applied (and no AL1033 proves that its include loaded).
 2. On a branch, add code that breaks it: for `AA0247` a codeunit without a `namespace` line; for `AA0137` a local variable that is never used. Run the pull request build.
 3. Expect the compile log to report `AA0247` as a warning for that codeunit (without the ruleset it stays at Info), or no `AA0137` at all (without the ruleset it is a warning).
 

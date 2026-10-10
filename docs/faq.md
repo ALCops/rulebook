@@ -19,11 +19,11 @@ Short answers to the questions organizations ask most, each with a link to the p
 
 ## 1. Why one flat endpoint per level and stage?
 
-Each endpoint is one ruleset file without includes, generated from the level's chain of files, the stage file, your twins setting, your overrides and quarantine ([D18](https://github.com/ALCops/rulebook-engine/blob/main/docs/adr/0018-every-endpoint-is-one-flat-ruleset-file-there-is-no-include.md)). The compiler resolves includes in ways that are easy to get wrong (strictest-wins between siblings, a failing include drops the whole tree), and every include is one more HTTP request per compile. A flat file is fetched once and reads the same in every consumer. With the shipped four levels and three stages that makes twelve endpoints; your own levels and stages add theirs.
+Each endpoint is one ruleset file without includes, generated from the level's chain of files, the stage file, your twins setting, your overrides and quarantine ([D18](https://github.com/ALCops/rulebook-engine/blob/main/docs/adr/0018-every-endpoint-is-one-flat-ruleset-file-there-is-no-include.md); since [D22](https://github.com/ALCops/rulebook-engine/blob/main/docs/adr/0022-sparse-endpoints-an-id-at-its-analyzer-default-is-not-listed.md) it lists only the deviations, question 5). The compiler resolves includes in ways that are easy to get wrong (strictest-wins between siblings, a failing include drops the whole tree), and every include is one more HTTP request per compile. A flat file is fetched once and reads the same in every consumer. With the shipped four levels and three stages that makes twelve endpoints; your own levels and stages add theirs.
 
 ## 2. Why one file per stage in an AL project?
 
-A project exception has to sit in the file the compiler is pointed at, because a file's own `rules` beat what it includes, and each stage points at another endpoint. So every stage gets its own small file in `.rulebook/`, and an exception that applies everywhere is repeated in each ([al-project.md](al-project.md) section 2, [D28](https://github.com/ALCops/rulebook-engine/blob/main/docs/adr/0028-identity-is-one-name-the-slug-names-every-file-url-selector.md)).
+A project exception has to sit in the file the compiler is pointed at, because a file's own `rules` beat what it includes, and each stage points at another endpoint. So every stage gets its own small file in `.rulebook/`, and an exception that applies everywhere is repeated in each ([al-project.md](al-project.md) section 2).
 
 ## 3. Why are levels and stages configurable?
 
@@ -47,11 +47,11 @@ There is one ladder of levels for both kinds. Both Microsoft cops run at their n
 
 ## 8. Do I get documentation updates?
 
-Yes. The pages in `docs/` of your repository are kept current by **Update Rulebook System Files**: a page you never edited follows the template, a page you edited is kept and listed in the update pull request, so you can take over what you need ([D50](https://github.com/ALCops/rulebook-engine/blob/main/docs/adr/0050-docs-is-a-customizable-file-class-and-the-installed-commit-is-recovered.md), [updating.md](updating.md) section 1). Set `"docs": { "updateMode": "overwrite" }` to always take the template's pages. A page you delete comes back until you list it in `unusedRulebookFiles`. The current pages are always at https://github.com/ALCops/rulebook/tree/main/docs.
+Yes. The pages in `docs/` of your repository are kept current by **Update Rulebook System Files**: a page you never edited follows the template, a page you edited is kept, and listed in the update pull request when the template changed it too, so you can take over what you need ([D50](https://github.com/ALCops/rulebook-engine/blob/main/docs/adr/0050-docs-is-a-customizable-file-class-and-the-installed-commit-is-recovered.md), [updating.md](updating.md) section 1). Set `"docs": { "updateMode": "overwrite" }` to always take the template's pages. A page you delete comes back until you list it in `unusedRulebookFiles`. The current pages are always at https://github.com/ALCops/rulebook/tree/main/docs.
 
 ## 9. Can I host the endpoints somewhere else?
 
-Version 1 publishes to GitHub Pages only. A separate public repository, Azure Blob Storage and a gist are planned ([hosting.md](hosting.md) section 4). The endpoints are self-contained files without includes, so any static host could serve them; the Publish workflow and its checks are what is still missing for the other targets.
+Version 1 publishes to GitHub Pages only. A separate public repository, Azure Blob Storage and a gist are planned ([hosting.md](hosting.md) section 4). The endpoints are self-contained files without includes, so a static host on a public address that answers without redirects should serve them too, but only `github.io` and `raw.githubusercontent.com` have been tested with the compiler; the Publish workflow and its checks are what is still missing for the other targets.
 
 ## 10. Troubleshooting
 

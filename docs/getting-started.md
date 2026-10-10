@@ -8,8 +8,8 @@ From "Use this template" to published endpoints your AL projects can use: create
 
 1. [What you need](#1-what-you-need)
 2. [Create the repository](#2-create-the-repository)
-3. [Fill in the settings](#3-fill-in-the-settings)
-4. [Turn on GitHub Pages](#4-turn-on-github-pages)
+3. [Turn on GitHub Pages](#3-turn-on-github-pages)
+4. [Fill in the settings](#4-fill-in-the-settings)
 5. [Add the write token](#5-add-the-write-token)
 6. [Publish](#6-publish)
 7. [Check the result](#7-check-the-result)
@@ -29,9 +29,13 @@ From "Use this template" to published endpoints your AL projects can use: create
 
 On https://github.com/ALCops/rulebook press **Use this template > Create a new repository**, pick the owner (your organization), a name such as `rulebook`, and the visibility from section 1. One repository per organization holds the rules of every AL project.
 
-The new repository runs Validate and Publish once on its first commit. Validate passes; Publish fails with "baseUrl is empty" because you have not set it yet. That is expected; step 6 runs it again.
+If Publish runs on the first commit of the new repository, it fails with "baseUrl is empty" because you have not set it yet. That is expected; step 6 runs it again.
 
-## 3. Fill in the settings
+## 3. Turn on GitHub Pages
+
+In the repository, open Settings > Pages and set Build and deployment > Source to **GitHub Actions**. Someone with admin rights does this once; the Publish workflow never creates the site itself ([hosting.md](hosting.md) section 2, step 1). Do it before the settings change of step 4 is merged, because that merge starts Publish.
+
+## 4. Fill in the settings
 
 Everything you set lives in `.github/Rulebook-Settings.json`. Change it in a pull request, so Validate checks it before the merge.
 
@@ -51,11 +55,7 @@ Everything you set lives in `.github/Rulebook-Settings.json`. Change it in a pul
 4. **`twins`**, optional: `both` (shipped) keeps the per-tenant and the AppSource rule of the 17 pairs that check the same thing; `pte` or `appsource` keeps only one side when every project you build is of that kind ([pte-or-appsource.md](pte-or-appsource.md) section 7).
 5. **`levels` and `stages`**: leave them as shipped for now. Adding, renaming or removing levels and stages is in [levels.md](levels.md).
 
-Merge the pull request.
-
-## 4. Turn on GitHub Pages
-
-In the repository, open Settings > Pages and set Build and deployment > Source to **GitHub Actions**. Someone with admin rights does this once; the Publish workflow never creates the site itself ([hosting.md](hosting.md) section 2, step 1).
+Merge the pull request. The merge changes the settings on `main`, so Publish runs by itself (step 6).
 
 ## 5. Add the write token
 
@@ -80,7 +80,7 @@ When all three open, your rulebook is live. Optionally, run Actions > **Update R
 | Path | What it is | On update from the template |
 |---|---|---|
 | `.github/Rulebook-Settings.json` | Your settings. | Kept; only `templateUrl`, `templateSha` and `$schema` change. |
-| `.github/workflows/` | Validate, Publish, Update Rulebook System Files, Scan Diagnostics and Change Rule. | Replaced by the template version. |
+| `.github/workflows/` | Validate, Publish, Update Rulebook System Files, Scan Diagnostics and Change Rule. | The workflows the template ships are replaced by the template version; workflows of your own are never touched. |
 | `base/`, `stages/`, `base/twins.json` | The shipped levels and stages. | Replaced; change rules in `overrides.json` instead. |
 | `overrides.json`, `quarantine.*.json`, `catalog/` | Your own rule decisions, the held-back diagnostics, the known diagnostics. | Never touched. |
 | `rulesets/`, `skeletons/` | The generated endpoints and skeletons. | Regenerated from the files above. |
@@ -97,10 +97,10 @@ When all three open, your rulebook is live. Optionally, run Actions > **Update R
 
 | Message | Cause | Fix |
 |---|---|---|
-| Publish: "baseUrl is empty" | `baseUrl` is not set; expected on the first commit of a new repository. | Step 3; the message proposes the value for your repository. |
-| Publish: "GitHub Pages is not enabled for this repository" | Step 4 was skipped, or the plan or the organization does not allow Pages for this repository. | Step 4; on GitHub Free check that the repository is public and that Pages creation is allowed ([hosting.md](hosting.md) section 3). |
+| Publish: "baseUrl is empty" | `baseUrl` is not set; expected on the first commit of a new repository. | Step 4; the message proposes the value for your repository. |
+| Publish: "GitHub Pages is not enabled for this repository" | Step 3 was skipped, or the plan or the organization does not allow Pages for this repository. | Step 3, then run Publish again; on GitHub Free check that the repository is public and that Pages creation is allowed ([hosting.md](hosting.md) section 3). |
 | Publish: "The plan of this account does not support GitHub Pages for a private repository" | A private repository on GitHub Free. | Make the repository public or upgrade the plan. |
-| The index page or an endpoint answers 404 right after Publish | The site is new, or a cache still serves the old state. | Wait a few minutes (Pages lets clients cache for up to 10 minutes) and reload; check that Publish ended green. |
+| The index page or an endpoint answers 404 or redirects | Publish did not end green, `baseUrl` is not the site's final address, or a cache still serves the old state. | Check the Publish run and its messages ([hosting.md](hosting.md) section 3); check `baseUrl`; wait up to 10 minutes and reload. |
 | Every AL project fails with AL1033 a few minutes after the repository was made private | GitHub Free removes the Pages site of a private repository. | Make it public again, turn Pages on again (step 4) and run Publish ([hosting.md](hosting.md) section 2). |
-| Scan Diagnostics: "Set quarantine.stages and quarantine.prereleaseStages in .github/Rulebook-Settings.json. ..." | The quarantine policy of step 3 is not set. | Set both keys ([quarantine.md](quarantine.md) section 2). |
+| Scan Diagnostics: "Set quarantine.stages and quarantine.prereleaseStages in .github/Rulebook-Settings.json. ..." | The quarantine policy of step 4 is not set. | Set both keys ([quarantine.md](quarantine.md) section 2). |
 | Update, Scan or Change Rule: "The GHTOKENWORKFLOW secret is needed ..." | The secret of step 5 is missing. | Create it ([ghtokenworkflow.md](ghtokenworkflow.md) section 4). |
