@@ -62,7 +62,7 @@ Invoke-WebRequest https://raw.githubusercontent.com/ALCops/rulebook-engine/main/
 ./Get-RulebookSkeletons.ps1 -BaseUrl https://contoso.github.io/rulebook -Level strict
 ```
 
-The script is a one-off helper: delete it afterwards, or download it to a temporary folder and pass the project folder with `-OutputPath`. Once the engine's `v1` branch exists (WP13), use the `v1` URL instead of `main`.
+The script is a one-off helper: delete it afterwards, or download it to a temporary folder and pass the project folder with `-OutputPath`.
 
 | Parameter | Meaning |
 |---|---|
@@ -79,7 +79,7 @@ What it does and refuses:
 - It checks every skeleton (one include, the endpoint of its level and stage) and writes nothing until all downloads and checks have passed. The files are written exactly as the site serves them, so they are the same files a manual download gives.
 - It prints the settings for VS Code and AL-Go and never changes a settings file.
 
-The script lives in the engine and is served from its `main` branch until the `v1` release branch exists (then `.../rulebook-engine/v1/scripts/...`, [#15](https://github.com/ALCops/rulebook-engine/issues/15)). The index page of your site at `<baseUrl>/` shows the same two commands.
+The script lives in the engine and is served from the engine's release branch, the one the URL names; `main` is the development branch. The index page of your site at `<baseUrl>/` shows the same two commands.
 
 **By hand.** Download `<baseUrl>/skeletons/<level>.<stage>.ruleset.json` for each stage, linked from the index page, and save it as `.rulebook/<stage>.ruleset.json`. Take the files from the published site, never from the `skeletons/` folder of your rulebook repository: the repository copies keep the placeholder `{BASEURL}`, which the compiler cannot fetch.
 

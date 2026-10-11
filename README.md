@@ -1,82 +1,71 @@
 # Rulebook
 
-Rulebook is a GitHub template plus automation for managing the ruleset files that drive code analysis in Microsoft Dynamics 365 Business Central AL projects. One repository per organization holds the rules for every analyzer (CodeCop, UICop, AppSourceCop, PerTenantExtensionCop and the ALCops cops), publishes them as URLs, and keeps them current with workflows. AL projects point at those URLs from VS Code, AL-Go for GitHub, Azure DevOps or any other pipeline that runs the AL compiler.
+This repository is your organization's rulebook: one place that decides which diagnostics of the AL compiler, the Microsoft code cops and the ALCops analyzers your AL projects report, and at which severity. It publishes one flat ruleset per level and stage (for example `strict.ci`). Every AL project includes the endpoint it needs through a small skeleton file, so a change here reaches all projects on their next build without editing them.
 
-> **Status:** design phase. This repository holds the user-facing documentation only; the template content (rulesets, workflows, skeletons) arrives with the work packages of [ALCops/rulebook-engine](https://github.com/ALCops/rulebook-engine), tracked on the [Rulebook v1 board](https://github.com/orgs/ALCops/projects/1). Nothing here is usable yet.
+The rulebook ships four levels (`Essential`, `Recommended`, `Strict`, `Complete`) and three stages (`default` for the editor, `CI` for pull request and release builds, `vNext` for builds against the next platform). The engine behind it is [ALCops/rulebook-engine](https://github.com/ALCops/rulebook-engine).
 
----
+## Layout
 
-## Contents
+| Path | Content | Class | Written by |
+|---|---|---|---|
+| `.github/Rulebook-Settings.json` | Base URL, publish target, quarantine policy, twins setting, the levels and stages. | settings | you |
+| `.github/workflows/` | The rulebook workflows. `Validate.yaml` checks every pull request and push; `Publish.yaml` publishes the endpoints when a push to `main` changes them, the skeletons or the settings; `UpdateRulebookSystemFiles.yaml` pulls a new template version into a pull request (by hand, or on the schedule in `update.schedule`); `ScanDiagnostics.yaml` scans the compiler and ALCops packages every day (`scan.schedule`) and keeps one pull request with the new diagnostic ids, quarantined by your policy; `ChangeRule.yaml` changes one rule through a form (Actions > Change Rule > Run workflow). | system | the update workflow |
+| `base/<level>.ruleset.json` | The level content: `essential` lists the ids that differ from the analyzer defaults, every other level the ids that differ from the level it is based on. | system | the update workflow |
+| `base/twins.json` | The PerTenantExtensionCop and AppSourceCop rules that check the same thing. | system | the update workflow |
+| `stages/<stage>.json` | What the `ci` and `vnext` stages change on top of every level. | system | the update workflow |
+| `overrides.json` | Your organization's rule changes, scoped to levels and stages. | org-owned | you, or the Change Rule workflow |
+| `quarantine.<stage>.json` | New diagnostic ids held at `None` per stage until you adopt them; mentioning an id in a level file adopts it, and the next scan removes the entry. | org-owned | the scan workflow |
+| `catalog/diagnostics.json`, `catalog/scan-state.json` | Every known diagnostic id with its analyzer default, the package versions that carry it and its docs link; the package versions the scan read last (created by the first scan). | org-owned | the scan workflow |
+| `rulesets/` | The published endpoints: one flat file per level and stage, listing only the ids whose action differs from the analyzer default. | generated | every workflow that changes an input; never edit by hand |
+| `skeletons/` | One file per level and stage to copy into an AL project, and a README that explains them (not published). | generated (the README is system) | the update workflow, from your levels and stages |
+| `README.md` | This file. | yours | you |
 
-1. [What Rulebook does](#1-what-rulebook-does)
-2. [How it fits together](#2-how-it-fits-together)
-3. [Getting started](#3-getting-started)
-4. [Consumer paths](#4-consumer-paths)
-5. [Documentation](#5-documentation)
-6. [Related repositories](#6-related-repositories)
+System files are replaced when you update from the template; settings are kept; org-owned files are yours and are never overwritten; generated files are rebuilt from the others.
 
----
+## Updating
 
-## 1. What Rulebook does
+The workflow **Update Rulebook System Files** (Actions > Update Rulebook System Files > Run workflow) pulls the newest version of the template into a pull request: the system files, your settings with the new `templateSha`, and `rulesets/` and `skeletons/` regenerated under your overrides and quarantine, with the effective change of every endpoint in the pull request. Your own files are never touched. It needs a secret `GHTOKENWORKFLOW` (a GitHub App or a personal access token, the same secret AL-Go uses), because the workflow token cannot change workflow files. Every Validate run also tells you when an update is available (set `"update": { "check": false }` in `.github/Rulebook-Settings.json` to turn that off); when the template cannot be read with the workflow token (a private template, or a pull request from a fork) it says "update check skipped" instead. How it works: [docs/updating.md](docs/updating.md); the secret: [docs/ghtokenworkflow.md](docs/ghtokenworkflow.md).
 
-| Need | Rulebook answer |
-|---|---|
-| Decide once which diagnostic is shown at which severity, for the whole organization | One **org rulebook repo** created from this template. |
-| Different severities for development, pull-request builds and next-major builds | Configurable **stages**. Shipped: `default` (the editor and any consumer without its own stage), `CI` (pull request and release builds), `vNext` (builds against the next platform). Add or remove stages in the settings. |
-| Per-tenant extension or AppSource app? | Rulebook does not ask. Both Microsoft cops run at their native severity; a project opts out of the rules written for the other kind with `suppressWarnings` in `app.json`, with its own ruleset file, or by disabling a cop. See [docs/pte-or-appsource.md](docs/pte-or-appsource.md). |
-| Start strict or start lenient, and grow | An ordered ladder of **levels**. Shipped: Essential, Recommended, Strict and Complete, each defined as the level below plus the rules it changes. Insert your own level, alias one under another name, start with everything off, or stop publishing one, all in the settings ([docs/levels.md](docs/levels.md)). |
-| One URL for `al.ruleSetPath`, the AL-Go `rulesetFile`, or a small local file | One **endpoint** per level and stage: a single flat ruleset file that lists only the diagnostics whose severity differs from the analyzer default, so a compile fetches one small file. Published by a workflow. |
-| New analyzer rules must not break a green pipeline | A daily **scan** of the compiler and ALCops packages quarantines new diagnostic ids per stage, reports changed default severities, and regenerates the endpoints. |
-| Change a rule without editing dozens of files | A **workflow form** that writes one entry to `overrides.json`, regenerates the endpoints and opens a pull request that shows the change per endpoint. See [docs/changing-a-rule.md](docs/changing-a-rule.md); the file itself is [docs/overrides.md](docs/overrides.md). |
-| Keep the automation up to date without losing your own decisions | An **update workflow** modelled on AL-Go's "Update AL-Go System Files": a pull request with the new template files and the regenerated endpoints, your overrides and settings kept. See [docs/updating.md](docs/updating.md); the write token is [docs/ghtokenworkflow.md](docs/ghtokenworkflow.md). |
+## First steps
 
-## 2. How it fits together
+1. Make sure GitHub Pages can serve this repository: on GitHub Free the repository must be **public**, and an organization owner must allow *Pages creation* under Organization settings > Member privileges.
+2. Enable Pages once: Settings > Pages > Build and deployment > Source **GitHub Actions**. The Publish workflow never creates the site itself.
+3. In `.github/Rulebook-Settings.json`, set `baseUrl` to the site address, `https://`, all lowercase, no trailing slash: `https://<owner>.github.io/<repository>` (for example `https://contoso.github.io/rulebook`), or your custom domain. `publish.target` stays `pages`; the other targets are planned.
+4. Set `quarantine.stages` (ids new in a stable package) and `quarantine.prereleaseStages` (ids new in a prerelease) to the stages that hold back new diagnostic ids, for example `["default", "ci"]` for both so that only `vnext` shows new rules at their default severity, or to `[]` to adopt new ids right away. The Scan Diagnostics workflow stops with a message until both are set; it uses the same `GHTOKENWORKFLOW` secret as the update. How the scan works: [docs/quarantine.md](docs/quarantine.md).
+5. Merge the settings change into `main` (a pull request lets Validate check it first). The Publish workflow runs on every push to `main` that changes `rulesets/`, `skeletons/`, the settings or the workflow itself, and by hand under Actions > Publish: it validates the rulebook, publishes `rulesets/`, the skeletons with your `baseUrl` filled in and an index page to `baseUrl`, and then checks that every URL serves the committed file. It never commits: when `rulesets/` is out of date it stops and tells you to regenerate it in a pull request.
 
-```mermaid
-flowchart LR
-    tpl[ALCops/rulebook<br/>this template] -->|Use this template| org[org rulebook repo<br/>base, overrides.json, quarantine,<br/>generated rulesets, workflows]
-    eng[ALCops/rulebook-engine<br/>actions, scripts] -.->|referenced by workflows| org
-    org -->|Publish workflow: validate, deploy, verify| url[(endpoint URLs<br/>GitHub Pages by default)]
-    url -->|one fetch| proj[AL project repo<br/>small local ruleset file]
-    proj --> vscode[VS Code]
-    proj --> algo[AL-Go for GitHub]
-    proj --> ado[Azure DevOps / other pipelines]
+After the first run, `baseUrl` opens a page that lists every endpoint and skeleton. If Publish fails before deploying, its message says what to change (Pages not enabled, `baseUrl` empty, endpoints out of date).
+
+## Using a skeleton in an AL project
+
+Copy the skeleton for your level, one per stage, into the project as `.rulebook/<stage>.ruleset.json`, for example `skeletons/strict.ci.ruleset.json` as `.rulebook/ci.ruleset.json`. Point `al.ruleSetPath` (VS Code) at `.rulebook/default.ruleset.json` and the AL-Go `rulesetFile` at `.rulebook/ci.ruleset.json`. Download the skeleton from the published site (`<baseUrl>/skeletons/strict.ci.ruleset.json`, linked from the index page): the published copy carries your `baseUrl`. The skeletons in this repository keep the placeholder `{BASEURL}`, so an update from the template never conflicts with your URL. Project exceptions go into the skeleton's `rules`; they override the endpoint.
+
+The init script does the download for you: it reads the levels and stages from `<baseUrl>/rulebook.json` and writes one file per stage into `.rulebook/` of the current folder (PowerShell 7):
+
+```powershell
+Invoke-WebRequest https://raw.githubusercontent.com/ALCops/rulebook-engine/main/scripts/Get-RulebookSkeletons.ps1 -OutFile Get-RulebookSkeletons.ps1
+./Get-RulebookSkeletons.ps1 -BaseUrl https://contoso.github.io/rulebook -Level strict
 ```
 
-An endpoint URL has the form `<baseUrl>/rulesets/<level>.<stage>.ruleset.json`, or `<baseUrl>/rulesets/<level>.ruleset.json` for the `default` stage. Level and stage names are lowercased in the URL: `https://contoso.github.io/rulebook/rulesets/strict.ci.ruleset.json`, `https://contoso.github.io/rulebook/rulesets/strict.ruleset.json`. Every endpoint is generated from the level's chain of files, the stage file, your `twins` setting, `overrides.json` and quarantine files. It lists the diagnostics whose action differs from the analyzer default and has no includes.
+Why one file per stage, the settings per consumer and when `suppressWarnings` in `app.json` works instead of an exception: the user page [docs/al-project.md](docs/al-project.md).
 
-## 3. Getting started
+## Changing a rule
 
-1. Press **Use this template** and create your org rulebook repo.
-2. In `.github/Rulebook-Settings.json`, set `baseUrl`, the quarantine policy and, if every project you build is of one kind, the `twins` setting.
-3. Turn on GitHub Pages once (Settings > Pages > Source **GitHub Actions**) and add the `GHTOKENWORKFLOW` secret for the workflows that write ([docs/ghtokenworkflow.md](docs/ghtokenworkflow.md)).
-4. Merge and run **Publish**; `<baseUrl>/` then lists every endpoint and skeleton ([docs/hosting.md](docs/hosting.md)).
-5. Point your AL projects at the endpoints: [VS Code](docs/vscode.md), [AL-Go for GitHub](docs/al-go.md), [Azure DevOps and other pipelines](docs/azure-devops.md).
+Never edit `rulesets/`: it is regenerated from the other files, and the Validate workflow fails when it is out of date. Change a rule for your organization with an entry in `overrides.json` (an id, an action, the levels and stages it applies to and an optional justification).
 
-The full walkthrough, with the checks after each step, is [docs/getting-started.md](docs/getting-started.md); every page is listed in [docs/README.md](docs/README.md).
+The usual way is the **Change Rule** workflow (Actions > Change Rule > Run workflow): pick the rule id, the new action (or `Remove` to delete your entry), one level and one stage (or `*` for all) and an optional justification. It writes the entry, regenerates `rulesets/`, validates the result and opens a pull request whose table shows the action before and after for every matching endpoint; with `commitOptions.createPullRequest` set to `false` it commits to the branch instead. A change that would alter nothing is reported and not written. It uses the same `GHTOKENWORKFLOW` secret as the update. A level or stage you add yourself appears in the form after your next update. How it works: [docs/changing-a-rule.md](docs/changing-a-rule.md).
 
-## 4. Consumer paths
+## Documentation
 
-| Consumer | Setting | Typical stage | External rulesets | Walkthrough |
-|---|---|---|---|---|
-| VS Code AL extension | `al.ruleSetPath` (local file or URL) | `default` | `al.enableExternalRulesets`, default true | [docs/vscode.md](docs/vscode.md) |
-| AL-Go for GitHub | `rulesetFile` in `.AL-Go/settings.json`, per workflow via `.github/<workflow name>.settings.json` | `ci`; `vnext` in `.github/Test Next Major.settings.json` | `enableExternalRulesets` | [docs/al-go.md](docs/al-go.md) |
-| BcContainerHelper / custom PowerShell | `-rulesetFile` | `ci` | `-enableExternalRulesets` | [docs/azure-devops.md](docs/azure-devops.md) |
-| ALOps (Azure DevOps) | `ruleset` input of `ALOpsAppCompiler@3` | `ci` | `enable_external_rulesets` | [docs/azure-devops.md](docs/azure-devops.md) |
-| `alc` directly | `/ruleset:<path>` | any | `/enableexternalrulesets` (default false) | [docs/azure-devops.md](docs/azure-devops.md) |
+- [Getting started](docs/getting-started.md): from "Use this template" to the first published endpoints.
+- [Hosting](docs/hosting.md): GitHub Pages and what the plan and the repository visibility allow.
+- [AL-Go for GitHub](docs/al-go.md), [Azure DevOps](docs/azure-devops.md) and [VS Code](docs/vscode.md): pointing each consumer at an endpoint.
+- [The AL project side](docs/al-project.md): the skeletons, one file per stage, exceptions and `suppressWarnings`.
+- [PTE or AppSource](docs/pte-or-appsource.md): the rules written for the other kind of extension.
+- [Levels and stages](docs/levels.md): picking a starting point and adding, renaming or removing levels and stages.
+- [Overrides](docs/overrides.md) and [Changing a rule](docs/changing-a-rule.md): your own rule changes.
+- [Quarantine](docs/quarantine.md): new analyzer rules and the daily scan.
+- [Updating](docs/updating.md), [versions](docs/versioning.md) and [the GHTOKENWORKFLOW secret](docs/ghtokenworkflow.md): taking new template versions.
+- [Migrating an existing ruleset](docs/migration.md) and [Frequently asked questions](docs/faq.md).
 
-## 5. Documentation
-
-User documentation lives in [docs/](docs/README.md) in this repository: start with [getting-started.md](docs/getting-started.md), the consumer walkthroughs and the [FAQ](docs/faq.md). Architecture, decisions and references live in [rulebook-engine/docs](https://github.com/ALCops/rulebook-engine/tree/main/docs); the work packages are issues on the [Rulebook v1 board](https://github.com/orgs/ALCops/projects/1). When version 1.0 ships, the user documentation moves to [alcops.dev](https://alcops.dev).
-
-**Issues and contributions.** Issues are disabled on this repository. Report problems and ideas in [ALCops/rulebook-engine](https://github.com/ALCops/rulebook-engine/issues); status and order of the work are on the [Rulebook v1 board](https://github.com/orgs/ALCops/projects/1). Organizations that create their own repository from this template handle issues there as they see fit.
-
-## 6. Related repositories
-
-- [ALCops/rulebook-engine](https://github.com/ALCops/rulebook-engine): the composite actions, PowerShell modules, tests and contributor documentation that the workflows in this template call.
-- [ALCops/Analyzers](https://github.com/ALCops/Analyzers): the ALCops analyzers whose rules Rulebook manages next to Microsoft's cops.
-- [microsoft/AL-Go](https://github.com/microsoft/AL-Go): the CI/CD system whose template and update mechanics Rulebook reuses.
-
-## License
-
-MIT, see [LICENSE](LICENSE).
+These pages are in `docs/` of your repository, and **Update Rulebook System Files** keeps them current unless you edit one (D50): then it keeps your page and lists it in the update pull request (set `docs.updateMode` to `overwrite` in `.github/Rulebook-Settings.json` to take the template's pages always). The current pages are at https://github.com/ALCops/rulebook/tree/main/docs. Questions and issues: [ALCops/rulebook-engine](https://github.com/ALCops/rulebook-engine/issues).

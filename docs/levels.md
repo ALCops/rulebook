@@ -63,7 +63,7 @@ A repository with Validate as a required check cannot merge such a pull request.
 
 The update pushes to the branch, or opens its pull request, with the write token of the `GHTOKENWORKFLOW` secret ([updating.md](updating.md) section 2, [ghtokenworkflow.md](ghtokenworkflow.md)); because that token and not the workflow's own one is used, Validate runs again on the new head (*observed* with a GitHub App; code-derived for a personal access token).
 
-Alternatives: where merging with a failing check is allowed, merge first and run the update on the default branch; `main` is red until it ran, and Publish stops at its Validate gate in between without publishing anything (*observed*). Or regenerate locally and commit to the branch: clone the `main` branch of [ALCops/rulebook-engine](https://github.com/ALCops/rulebook-engine) next to your repository (as in [quarantine.md](quarantine.md) section 4) and run, in PowerShell 7.4 or newer from the root of your rulebook repository:
+Alternatives: where merging with a failing check is allowed, merge first and run the update on the default branch; `main` is red until it ran, and Publish stops at its Validate gate in between without publishing anything (*observed*). Or regenerate locally and commit to the branch: clone [ALCops/rulebook-engine](https://github.com/ALCops/rulebook-engine) at the engine branch named in your workflows' `uses:` lines next to your repository (as in [quarantine.md](quarantine.md) section 4) and run, in PowerShell 7.4 or newer from the root of your rulebook repository:
 
 ```powershell
 Import-Module ../rulebook-engine/modules/Rulebook.Generate.psd1
@@ -94,7 +94,7 @@ Add an entry to `levels` at the position where it should appear, and create its 
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/ALCops/rulebook-engine/v1/schemas/ruleset.delta.schema.json",
+  "$schema": "https://raw.githubusercontent.com/ALCops/rulebook-engine/main/schemas/ruleset.delta.schema.json",
   "name": "Rulebook House",
   "description": "Level house, basedOn recommended. The house rules of this organization.",
   "rules": [
@@ -119,7 +119,7 @@ Shipped names are not edited: the shipped file name is what the update overwrite
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/ALCops/rulebook-engine/v1/schemas/ruleset.delta.schema.json",
+  "$schema": "https://raw.githubusercontent.com/ALCops/rulebook-engine/main/schemas/ruleset.delta.schema.json",
   "name": "Rulebook Baseline",
   "description": "Level baseline, basedOn essential. Essential under another name: an alias.",
   "rules": []
@@ -169,7 +169,7 @@ Add an entry to `stages` and create `stages/<slug>.json` with the rules it chang
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/ALCops/rulebook-engine/v1/schemas/ruleset.delta.schema.json",
+  "$schema": "https://raw.githubusercontent.com/ALCops/rulebook-engine/main/schemas/ruleset.delta.schema.json",
   "name": "Rulebook stage Nightly",
   "description": "Stage nightly. Applied on top of every level where the level result is not None. Organization stage.",
   "rules": [
