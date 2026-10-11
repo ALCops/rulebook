@@ -2,7 +2,7 @@
 
 `overrides.json` holds your organization's own rule decisions on top of the shipped levels and stages: "AL0432 off in CI for every level", "LC0015 an error for Strict". Each entry names a diagnostic, an action and the levels and stages it applies to. The endpoints are generated from it together with the level and stage files, your `twins` setting and the quarantine files.
 
-> **Status:** written 2026-10-09 with the change-rule work package of the engine ([WP09, #11](https://github.com/ALCops/rulebook-engine/issues/11)). The precedence below is the engine's contract in [composition.md](https://github.com/ALCops/rulebook-engine/blob/main/docs/rulebook/composition.md), the selector rules are the schema [rulebook-overrides.schema.json](https://github.com/ALCops/rulebook-engine/blob/main/schemas/rulebook-overrides.schema.json) and validation check C10. The usual way to write the file is the Change Rule workflow: [changing-a-rule.md](changing-a-rule.md).
+> **Status:** written 2026-10-09 with the change-rule work package of the engine ([WP09, #11](https://github.com/ALCops/rulebook-engine/issues/11)). The precedence below is the engine's contract in [composition.md](https://github.com/ALCops/rulebook-engine/blob/v1/docs/rulebook/composition.md), the selector rules are the schema [rulebook-overrides.schema.json](https://github.com/ALCops/rulebook-engine/blob/v1/schemas/rulebook-overrides.schema.json) and validation check C10. The usual way to write the file is the Change Rule workflow: [changing-a-rule.md](changing-a-rule.md).
 
 ## Contents
 
@@ -20,7 +20,7 @@ The template ships it empty:
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/ALCops/rulebook-engine/main/schemas/rulebook-overrides.schema.json",
+  "$schema": "https://raw.githubusercontent.com/ALCops/rulebook-engine/v1/schemas/rulebook-overrides.schema.json",
   "rules": []
 }
 ```
@@ -29,7 +29,7 @@ With entries, one per line, the layout the Change Rule workflow writes:
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/ALCops/rulebook-engine/main/schemas/rulebook-overrides.schema.json",
+  "$schema": "https://raw.githubusercontent.com/ALCops/rulebook-engine/v1/schemas/rulebook-overrides.schema.json",
   "rules": [
     { "id": "AL0432", "action": "None", "levels": ["*"], "stages": ["ci"], "justification": "Obsoletion backlog tracked in DEV-1234" },
     { "id": "LC0015", "action": "Error", "levels": ["strict", "complete"], "stages": ["*"] }
@@ -71,7 +71,7 @@ The Change Rule workflow keeps one entry per selection: running it for a selecti
 
 ## 4. Precedence over the other inputs
 
-For each diagnostic in each endpoint, in this order ([D19](https://github.com/ALCops/rulebook-engine/blob/main/docs/adr/0019-organization-overrides-and-quarantine-are-generator-inputs.md), [D41](https://github.com/ALCops/rulebook-engine/blob/main/docs/adr/0041-quarantine-wins-over-a-stage-entry-for-an-unmentioned-id.md)):
+For each diagnostic in each endpoint, in this order ([D19](https://github.com/ALCops/rulebook-engine/blob/v1/docs/adr/0019-organization-overrides-and-quarantine-are-generator-inputs.md), [D41](https://github.com/ALCops/rulebook-engine/blob/v1/docs/adr/0041-quarantine-wins-over-a-stage-entry-for-an-unmentioned-id.md)):
 
 1. **An override** that matches the diagnostic, level and stage decides.
 2. Else **the twins setting**: the losing side of a pair of rules that check the same thing is `None` ([pte-or-appsource.md](pte-or-appsource.md)).

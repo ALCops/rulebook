@@ -2,7 +2,7 @@
 
 Your rulebook repository follows a release branch of the template, `v1` today. What that branch gives you, how to hold content back, what the development branch `main` is, and how you move to a new major version.
 
-> **Status:** written 2026-10-11 with the release work package of the engine ([WP13, #15](https://github.com/ALCops/rulebook-engine/issues/15)); the decision is [D52](https://github.com/ALCops/rulebook-engine/blob/main/docs/adr/0052-releases-are-a-floating-major-branch-cut-from-hand-written-release-notes.md). How a release is cut is the engine's [releasing.md](https://github.com/ALCops/rulebook-engine/blob/main/docs/releasing.md).
+> **Status:** written 2026-10-11 with the release work package of the engine ([WP13, #15](https://github.com/ALCops/rulebook-engine/issues/15)); the decision is [D52](https://github.com/ALCops/rulebook-engine/blob/v1/docs/adr/0052-releases-are-a-floating-major-branch-cut-from-hand-written-release-notes.md). How a release is cut is the engine's [releasing.md](https://github.com/ALCops/rulebook-engine/blob/v1/docs/releasing.md).
 
 ## Contents
 

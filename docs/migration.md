@@ -2,7 +2,7 @@
 
 How to move an organization that already keeps its rules in ruleset files onto your rulebook: work out what the old files make the compiler do, pick the shipped level that is closest, write the differences as overrides, and compare before you switch the projects over.
 
-> **Status:** written 2026-10-10 with WP11 of the engine ([#13](https://github.com/ALCops/rulebook-engine/issues/13)). The method is manual; there is no migration script yet. It was exercised once on a real layered setup (a shared base and two per-kind overlays, in use by the projects of one organization): after the import the old effective rules and the new endpoint agreed for both kinds of project on the default stage, and the lessons are in section 7. The compiler behaviour is the engine's [compiler-ruleset-internals.md](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/compiler-ruleset-internals.md).
+> **Status:** written 2026-10-10 with WP11 of the engine ([#13](https://github.com/ALCops/rulebook-engine/issues/13)). The method is manual; there is no migration script yet. It was exercised once on a real layered setup (a shared base and two per-kind overlays, in use by the projects of one organization): after the import the old effective rules and the new endpoint agreed for both kinds of project on the default stage, and the lessons are in section 7. The compiler behaviour is the engine's [compiler-ruleset-internals.md](https://github.com/ALCops/rulebook-engine/blob/v1/docs/reference/compiler-ruleset-internals.md).
 
 ## Contents
 
@@ -30,11 +30,11 @@ All three go the same way: every root file a project points at is one "old effec
 - Your rulebook repository, created and published ([getting-started.md](getting-started.md)).
 - Every **root** file a project points at today (`al.ruleSetPath`, `rulesetFile`, `/ruleset:`), and every file they include.
 - Which root each kind of project and each pipeline uses, so you know what each one must keep doing.
-- The engine's level pages, one per shipped level with every listed rule and its action: [docs/levels](https://github.com/ALCops/rulebook-engine/blob/main/docs/levels/README.md).
+- The engine's level pages, one per shipped level with every listed rule and its action: [docs/levels](https://github.com/ALCops/rulebook-engine/blob/v1/docs/levels/README.md).
 
 ## 3. How the compiler reads your old files
 
-The compiler flattens a ruleset tree into one list before it applies it ([compiler-ruleset-internals.md](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/compiler-ruleset-internals.md) sections 4 to 7). What matters for a migration:
+The compiler flattens a ruleset tree into one list before it applies it ([compiler-ruleset-internals.md](https://github.com/ALCops/rulebook-engine/blob/v1/docs/reference/compiler-ruleset-internals.md) sections 4 to 7). What matters for a migration:
 
 | Rule | Consequence |
 |---|---|
@@ -51,7 +51,7 @@ The compiler flattens a ruleset tree into one list before it applies it ([compil
 
 1. **Resolve each root.** Apply section 3 by hand, depth first: resolve each included file, merge siblings strictest-wins, then write the root's own `rules` on top. Or let the compiler do it: compile a small sample project with `alc` against the root and the analyzers and read the reported actions from the diagnostics; that only shows the ids your sample code triggers, and never shows an id the tree set to `None` or `Hidden`, which is exactly what a migration must carry over; the paper method is the complete one.
 2. **Write the old effective list** per root as a table, `id | old action`. Rename the ids of analyzers that changed their numbering first (section 7: BusinessCentral.LinterCop ids are ALCops ids now).
-3. **Compare with each shipped level.** For each level, take its endpoint for the stage this root served (`<baseUrl>/rulesets/<level>.ruleset.json` for the editor, `<baseUrl>/rulesets/<level>.ci.ruleset.json` for pipelines) and fill in every unlisted id with its analyzer default (`defaultSeverity` in `catalog/diagnostics.json` of your rulebook, shipped from the engine's [template/catalog/diagnostics.json](https://github.com/ALCops/rulebook-engine/blob/main/template/catalog/diagnostics.json); an id with `enabledByDefault: false` is off). Count the ids where old and new differ, in both directions: an id your tree sets that the level does not, and an id the level lists that your tree left at the default. Pick the level with the fewest differences. A tree that switches nearly everything off starts from an everything-off level instead ([levels.md](levels.md) section 6).
+3. **Compare with each shipped level.** For each level, take its endpoint for the stage this root served (`<baseUrl>/rulesets/<level>.ruleset.json` for the editor, `<baseUrl>/rulesets/<level>.ci.ruleset.json` for pipelines) and fill in every unlisted id with its analyzer default (`defaultSeverity` in `catalog/diagnostics.json` of your rulebook, shipped from the engine's [template/catalog/diagnostics.json](https://github.com/ALCops/rulebook-engine/blob/v1/template/catalog/diagnostics.json); an id with `enabledByDefault: false` is off). Count the ids where old and new differ, in both directions: an id your tree sets that the level does not, and an id the level lists that your tree left at the default. Pick the level with the fewest differences. A tree that switches nearly everything off starts from an everything-off level instead ([levels.md](levels.md) section 6).
 4. **Decide each difference** and write the ones you keep:
    - An id your old tree decided: an entry in `overrides.json` scoped to the level you picked, `levels: ["<slug>"]`, with the stages it applied to (`["*"]` when the old root served every build) ([overrides.md](overrides.md)), or one by one with the Change Rule workflow ([changing-a-rule.md](changing-a-rule.md)).
    - An id the level lists that your tree left at the default: either adopt the level's decision (no entry), or keep the old behaviour with an override at the analyzer default, which makes the id unlisted ([overrides.md](overrides.md) section 5).
@@ -146,7 +146,7 @@ Recommended differs in 15 ids for `editor` and 23 for `build`; the other shipped
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/ALCops/rulebook-engine/main/schemas/rulebook-overrides.schema.json",
+  "$schema": "https://raw.githubusercontent.com/ALCops/rulebook-engine/v1/schemas/rulebook-overrides.schema.json",
   "rules": [
     { "id": "AA0137", "action": "Error", "levels": ["recommended"], "stages": ["*"], "justification": "Migrated: base" },
     { "id": "AA0021", "action": "None", "levels": ["recommended"], "stages": ["*"], "justification": "Migrated: base" },

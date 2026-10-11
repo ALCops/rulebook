@@ -64,7 +64,7 @@ jobs:
           Write-Host "Secret: $name, direct commit: $directCommit, include prerelease: $includePrerelease"
 
       - name: Scan diagnostics
-        uses: ALCops/rulebook-engine/actions/ScanDiagnostics@main
+        uses: ALCops/rulebook-engine/actions/ScanDiagnostics@v1
         with:
           token: ${{ secrets[steps.settings.outputs.secretName] }}
           includePrerelease: ${{ steps.settings.outputs.includePrerelease }}

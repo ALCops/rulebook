@@ -2,7 +2,7 @@
 
 How the AL Language extension in VS Code uses your rulebook: the workspace settings, workspaces whose folder is not the app, when the editor reads the ruleset again, and how `suppressWarnings` fits in.
 
-> **Status:** written 2026-10-10 with WP11 of the engine ([#13](https://github.com/ALCops/rulebook-engine/issues/13)). The re-read triggers were observed in the engine's [spike (e)](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/spikes/e-vscode-refetch.md) (AL extension 18.0.2819426, VS Code 1.140.0) and the settings in the WP06 live run ([rulebook-engine#60](https://github.com/ALCops/rulebook-engine/pull/60)); the setting names are Microsoft Learn's [AL Language extension configuration](https://learn.microsoft.com/dynamics365/business-central/dev-itpro/developer/devenv-al-extension-configuration). The project-side facts are in [al-project.md](al-project.md).
+> **Status:** written 2026-10-10 with WP11 of the engine ([#13](https://github.com/ALCops/rulebook-engine/issues/13)). The re-read triggers were observed in the engine's [spike (e)](https://github.com/ALCops/rulebook-engine/blob/v1/docs/reference/spikes/e-vscode-refetch.md) (AL extension 18.0.2819426, VS Code 1.140.0) and the settings in the WP06 live run ([rulebook-engine#60](https://github.com/ALCops/rulebook-engine/pull/60)); the setting names are Microsoft Learn's [AL Language extension configuration](https://learn.microsoft.com/dynamics365/business-central/dev-itpro/developer/devenv-al-extension-configuration). The project-side facts are in [al-project.md](al-project.md).
 
 ## Contents
 

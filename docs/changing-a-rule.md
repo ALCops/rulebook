@@ -2,7 +2,7 @@
 
 Your organization decides that a rule should be off for Strict in CI, or that a rule the levels leave off should be an error everywhere. The **Change Rule** workflow does that from a form: it writes one entry to `overrides.json`, regenerates the endpoints, validates the result and opens a pull request whose table shows, for every endpoint the change applies to, the action before and after. Nobody edits a JSON file by hand, and the reviewer sees what changes for the AL projects.
 
-> **Status:** written 2026-10-09 with the change-rule work package of the engine ([WP09, #11](https://github.com/ALCops/rulebook-engine/issues/11)). Everything below was observed in a live run on a scratch repository or is stated by the engine's contributor reference, [change-mechanics.md](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/change-mechanics.md), which also holds the run table. The file the workflow writes is described in [overrides.md](overrides.md). The workflow writes with the same secret as the update: [ghtokenworkflow.md](ghtokenworkflow.md).
+> **Status:** written 2026-10-09 with the change-rule work package of the engine ([WP09, #11](https://github.com/ALCops/rulebook-engine/issues/11)). Everything below was observed in a live run on a scratch repository or is stated by the engine's contributor reference, [change-mechanics.md](https://github.com/ALCops/rulebook-engine/blob/v1/docs/reference/change-mechanics.md), which also holds the run table. The file the workflow writes is described in [overrides.md](overrides.md). The workflow writes with the same secret as the update: [ghtokenworkflow.md](ghtokenworkflow.md).
 
 ## Contents
 
@@ -80,7 +80,7 @@ The job summary of the run has the same table and, after the push, the effective
 
 ## 4. When nothing happens
 
-**Nothing would change.** When no endpoint would change and the entry would stay as it is (same action, and the justification empty or the same), or a new entry would only repeat what the selected endpoints already give, the run succeeds without writing anything and says so ([D48](https://github.com/ALCops/rulebook-engine/blob/main/docs/adr/0048-no-op-changes-are-reported-and-never-written.md)):
+**Nothing would change.** When no endpoint would change and the entry would stay as it is (same action, and the justification empty or the same), or a new entry would only repeat what the selected endpoints already give, the run succeeds without writing anything and says so ([D48](https://github.com/ALCops/rulebook-engine/blob/v1/docs/adr/0048-no-op-changes-are-reported-and-never-written.md)):
 
 > No change: LC0031 is already None on every matching endpoint (strict.ci); overrides.json was not written
 
@@ -105,13 +105,13 @@ To lift `AA0001` for Strict in CI while the `*` entry stays, set a new action fo
 | `true` (shipped) or absent | A pull request from `change-rule/<id>/<yyMMddHHmmss>`. |
 | `false` | A commit on the branch the workflow runs on. The commit message is the title (for example `Change AA0072 to Info (levels: *, stages: *)`); the run's notice says "Rule change committed to main (`<sha7>`)". |
 
-There is no form field for this; the setting is your organization's choice for every change ([D47](https://github.com/ALCops/rulebook-engine/blob/main/docs/adr/0047-changerule-follows-commitoptions-and-has-no-directcommit-input.md)). When branch protection or a ruleset refuses the direct push, the run opens the pull request instead, and its notice ends with "(the direct commit was refused)" (observed with a ruleset that requires pull requests). Several runs are queued, not run at the same time; when a third is started while one runs and one waits, GitHub cancels the waiting one, so start that change again.
+There is no form field for this; the setting is your organization's choice for every change ([D47](https://github.com/ALCops/rulebook-engine/blob/v1/docs/adr/0047-changerule-follows-commitoptions-and-has-no-directcommit-input.md)). When branch protection or a ruleset refuses the direct push, the run opens the pull request instead, and its notice ends with "(the direct commit was refused)" (observed with a ruleset that requires pull requests). Several runs are queued, not run at the same time; when a third is started while one runs and one waits, GitHub cancels the waiting one, so start that change again.
 
 ## 6. The secret
 
 The workflow pushes and opens the pull request with the token from the `GHTOKENWORKFLOW` secret, the same secret the update and the scan use ([ghtokenworkflow.md](ghtokenworkflow.md)), so the pull request runs Validate. A run that only answers "no change" or fails on its input does not need the secret. A real change without it fails with:
 
-> The GHTOKENWORKFLOW secret is needed to change a rule. Read https://github.com/ALCops/rulebook/blob/main/docs/ghtokenworkflow.md
+> The GHTOKENWORKFLOW secret is needed to change a rule. Read https://github.com/ALCops/rulebook/blob/v1/docs/ghtokenworkflow.md
 
 ## 7. Your own levels and stages
 

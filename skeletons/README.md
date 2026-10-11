@@ -11,7 +11,7 @@ The copies here keep the placeholder `{BASEURL}`, which the compiler cannot fetc
 One file per stage in `.rulebook/`, named after the stage: `.rulebook/default.ruleset.json`, `.rulebook/ci.ruleset.json`, `.rulebook/vnext.ruleset.json`. The init script downloads the published skeletons of one level (PowerShell 7):
 
 ```powershell
-Invoke-WebRequest https://raw.githubusercontent.com/ALCops/rulebook-engine/main/scripts/Get-RulebookSkeletons.ps1 -OutFile Get-RulebookSkeletons.ps1
+Invoke-WebRequest https://raw.githubusercontent.com/ALCops/rulebook-engine/v1/scripts/Get-RulebookSkeletons.ps1 -OutFile Get-RulebookSkeletons.ps1
 ./Get-RulebookSkeletons.ps1 -BaseUrl https://contoso.github.io/rulebook -Level strict
 ```
 
@@ -22,6 +22,6 @@ Then point the consumers at the files:
 
 ## Exceptions
 
-A project exception goes into `rules` of the file, with an `id`, an `action` and a `justification`; the file's own rules beat the endpoint it includes. Each stage has its own file, so an exception that applies to every stage is repeated in each. Why one file per stage, and when `suppressWarnings` in `app.json` works instead: the user page [docs/al-project.md](https://github.com/ALCops/rulebook/blob/main/docs/al-project.md) in the ALCops/rulebook repository (written with WP06). Opting out of the other cop's rules (per-tenant extension or AppSource app): [docs/pte-or-appsource.md](https://github.com/ALCops/rulebook/blob/main/docs/pte-or-appsource.md).
+A project exception goes into `rules` of the file, with an `id`, an `action` and a `justification`; the file's own rules beat the endpoint it includes. Each stage has its own file, so an exception that applies to every stage is repeated in each. Why one file per stage, and when `suppressWarnings` in `app.json` works instead: the user page [docs/al-project.md](https://github.com/ALCops/rulebook/blob/v1/docs/al-project.md) in the ALCops/rulebook repository (written with WP06). Opting out of the other cop's rules (per-tenant extension or AppSource app): [docs/pte-or-appsource.md](https://github.com/ALCops/rulebook/blob/v1/docs/pte-or-appsource.md).
 
 This README is not published and is exempt from the file-name check C11.

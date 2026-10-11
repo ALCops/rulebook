@@ -1,6 +1,6 @@
 # Rulebook user documentation
 
-This folder is copied into your repository when you create it from the template and kept current by **Update Rulebook System Files** unless you edit a page (then the update keeps yours and lists it). The current pages are at https://github.com/ALCops/rulebook/tree/main/docs. The pages marked *planned* do not exist yet; the row names the work package that writes them.
+This folder is copied into your repository when you create it from the template and kept current by **Update Rulebook System Files** unless you edit a page (then the update keeps yours and lists it). The current pages are at https://github.com/ALCops/rulebook/tree/v1/docs. The pages marked *planned* do not exist yet; the row names the work package that writes them.
 
 | Page | Intent | Status |
 |---|---|---|
@@ -22,4 +22,4 @@ This folder is copied into your repository when you create it from the template 
 | [`versioning.md`](versioning.md) | Versions of the template: what `@v1` means, holding content back and reading the release notes in the update pull request, the development branch `main`, moving to a new major version. | written (WP13, #15) |
 | `dashboard.md` | The dashboard on your published site: what it shows, provenance, adapting `site/`. | planned (WP14, [#16](https://github.com/ALCops/rulebook-engine/issues/16)) |
 
-Contributor documentation (architecture, decisions, compiler internals, AL-Go mechanics) is in [rulebook-engine/docs](https://github.com/ALCops/rulebook-engine/tree/main/docs); the work packages are issues on the [Rulebook v1 board](https://github.com/orgs/ALCops/projects/1).
+Contributor documentation (architecture, decisions, compiler internals, AL-Go mechanics) is in [rulebook-engine/docs](https://github.com/ALCops/rulebook-engine/tree/v1/docs); the work packages are issues on the [Rulebook v1 board](https://github.com/orgs/ALCops/projects/1).
