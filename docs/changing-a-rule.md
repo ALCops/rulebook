@@ -111,7 +111,7 @@ There is no form field for this; the setting is your organization's choice for e
 
 The workflow pushes and opens the pull request with the token from the `GHTOKENWORKFLOW` secret, the same secret the update and the scan use ([ghtokenworkflow.md](ghtokenworkflow.md)), so the pull request runs Validate. A run that only answers "no change" or fails on its input does not need the secret. A real change without it fails with:
 
-> The GHTOKENWORKFLOW secret is needed to change a rule. Read https://github.com/ALCops/rulebook/blob/main/docs/ghtokenworkflow.md
+> The GHTOKENWORKFLOW secret is needed to change a rule. Read https://github.com/ALCops/rulebook/blob/preview/docs/ghtokenworkflow.md
 
 ## 7. Your own levels and stages
 

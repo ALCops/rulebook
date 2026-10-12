@@ -47,7 +47,7 @@ There is one ladder of levels for both kinds. Both Microsoft cops run at their n
 
 ## 8. Do I get documentation updates?
 
-Yes. The pages in `docs/` of your repository are kept current by **Update Rulebook System Files**: a page you never edited follows the template, a page you edited is kept, and listed in the update pull request when the template changed it too, so you can take over what you need ([D50](https://github.com/ALCops/rulebook-engine/blob/main/docs/adr/0050-docs-is-a-customizable-file-class-and-the-installed-commit-is-recovered.md), [updating.md](updating.md) section 1). Set `"docs": { "updateMode": "overwrite" }` to always take the template's pages. A page you delete comes back until you list it in `unusedRulebookFiles`. The current pages are always at https://github.com/ALCops/rulebook/tree/main/docs.
+Yes. The pages in `docs/` of your repository are kept current by **Update Rulebook System Files**: a page you never edited follows the template, a page you edited is kept, and listed in the update pull request when the template changed it too, so you can take over what you need ([D50](https://github.com/ALCops/rulebook-engine/blob/main/docs/adr/0050-docs-is-a-customizable-file-class-and-the-installed-commit-is-recovered.md), [updating.md](updating.md) section 1). Set `"docs": { "updateMode": "overwrite" }` to always take the template's pages. A page you delete comes back until you list it in `unusedRulebookFiles`. The current pages are always at https://github.com/ALCops/rulebook/tree/preview/docs.
 
 ## 9. Can I host the endpoints somewhere else?
 
