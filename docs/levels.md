@@ -2,7 +2,7 @@
 
 A level is a named set of rule decisions your AL projects build against: Essential, Recommended, Strict and Complete ship with the template, and you can add your own, publish one under another name, turn everything off as a starting point, add a stage or stop publishing one. This page explains what each shipped level contains, how to pick a starting point, and the exact steps and messages for every change to the set.
 
-> **Status:** written 2026-10-09 with WP10 of the engine ([#12](https://github.com/ALCops/rulebook-engine/issues/12)). The pages of the shipped levels are generated in the engine ([docs/levels/](https://github.com/ALCops/rulebook-engine/blob/main/docs/levels/README.md)); the maintainer side is [authoring-levels.md](https://github.com/ALCops/rulebook-engine/blob/main/docs/authoring-levels.md). Statements marked *observed* were seen in the live run on a scratch repository on 2026-10-09; the rest is stated by the engine's code and its tests.
+> **Status:** written 2026-10-09 with WP10 of the engine ([#12](https://github.com/ALCops/rulebook-engine/issues/12)). The pages of the shipped levels are generated in the engine ([docs/levels/](https://github.com/ALCops/rulebook-engine/blob/v1/docs/levels/README.md)); the maintainer side is [authoring-levels.md](https://github.com/ALCops/rulebook-engine/blob/v1/docs/authoring-levels.md). Statements marked *observed* were seen in the live run on a scratch repository on 2026-10-09; the rest is stated by the engine's code and its tests.
 
 ## Contents
 
@@ -25,10 +25,10 @@ The template ships four levels in one ladder:
 
 | Level | Intent | What is on | Default-stage counts (628 diagnostics) | Page |
 |---|---|---|---|---|
-| Essential (root) | You cannot ship without this. | Definite runtime failures, the Error defaults of PerTenantExtensionCop and AppSourceCop except the marketplace and baseline checks, compiler warnings that become errors later, PlatformCop, a few blockers; everything else off. | 119 Error, 124 Warning, 10 Info, 375 None; the endpoint lists 353 | [essential.md](https://github.com/ALCops/rulebook-engine/blob/main/docs/levels/essential.md) |
-| Recommended | What a healthy project runs. | Every rule its analyzer enables by default, at the author's severity, with nine documented deviations. | 128 Error, 391 Warning, 68 Info, 18 Hidden, 23 None; lists 9 | [recommended.md](https://github.com/ALCops/rulebook-engine/blob/main/docs/levels/recommended.md) |
-| Strict | The quality gate. | Recommended with default-on Info rules raised to Warning and Hidden ones to Info. | 128 Error, 443 Warning, 29 Info, 5 Hidden, 23 None; lists 68 | [strict.md](https://github.com/ALCops/rulebook-engine/blob/main/docs/levels/strict.md) |
-| Complete | Everything the analyzers can tell you. | Strict plus every opt-in rule; off only LC0054 and LC0089i. | 128 Error, 445 Warning, 51 Info, 2 Hidden, 2 None; lists 92 | [complete.md](https://github.com/ALCops/rulebook-engine/blob/main/docs/levels/complete.md) |
+| Essential (root) | You cannot ship without this. | Definite runtime failures, the Error defaults of PerTenantExtensionCop and AppSourceCop except the marketplace and baseline checks, compiler warnings that become errors later, PlatformCop, a few blockers; everything else off. | 119 Error, 124 Warning, 10 Info, 375 None; the endpoint lists 353 | [essential.md](https://github.com/ALCops/rulebook-engine/blob/v1/docs/levels/essential.md) |
+| Recommended | What a healthy project runs. | Every rule its analyzer enables by default, at the author's severity, with nine documented deviations. | 128 Error, 391 Warning, 68 Info, 18 Hidden, 23 None; lists 9 | [recommended.md](https://github.com/ALCops/rulebook-engine/blob/v1/docs/levels/recommended.md) |
+| Strict | The quality gate. | Recommended with default-on Info rules raised to Warning and Hidden ones to Info. | 128 Error, 443 Warning, 29 Info, 5 Hidden, 23 None; lists 68 | [strict.md](https://github.com/ALCops/rulebook-engine/blob/v1/docs/levels/strict.md) |
+| Complete | Everything the analyzers can tell you. | Strict plus every opt-in rule; off only LC0054 and LC0089i. | 128 Error, 445 Warning, 51 Info, 2 Hidden, 2 None; lists 92 | [complete.md](https://github.com/ALCops/rulebook-engine/blob/v1/docs/levels/complete.md) |
 
 Each engine page lists the entries of the level file grouped by analyzer, with the action of the level below ("From"), the new action ("To"), a `lowered` mark where the action goes down, the justification and the docs link, and the counts for every stage. The "lists" figure is the number of diagnostics the endpoint writes: an endpoint names only the rules whose action differs from the analyzer default. The engine pages describe the shipped levels; your own levels get their pages with the dashboard site (WP14). The links resolve once the engine change that adds the pages is merged.
 
@@ -94,7 +94,7 @@ Add an entry to `levels` at the position where it should appear, and create its 
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/ALCops/rulebook-engine/main/schemas/ruleset.delta.schema.json",
+  "$schema": "https://raw.githubusercontent.com/ALCops/rulebook-engine/v1/schemas/ruleset.delta.schema.json",
   "name": "Rulebook House",
   "description": "Level house, basedOn recommended. The house rules of this organization.",
   "rules": [
@@ -119,7 +119,7 @@ Shipped names are not edited: the shipped file name is what the update overwrite
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/ALCops/rulebook-engine/main/schemas/ruleset.delta.schema.json",
+  "$schema": "https://raw.githubusercontent.com/ALCops/rulebook-engine/v1/schemas/ruleset.delta.schema.json",
   "name": "Rulebook Baseline",
   "description": "Level baseline, basedOn essential. Essential under another name: an alias.",
   "rules": []
@@ -135,7 +135,7 @@ An alias does not inherit overrides scoped to the original slug (code-derived): 
 There is no shipped everything-off level. You add your own root level with a script that writes `base/off.ruleset.json`: every diagnostic the analyzers enable by default, at None, sorted, without justifications. Run it from the root of a clone of your rulebook repository, with the script saved next to the clone (there is no `.gitignore` to keep it out of a commit):
 
 ```powershell
-Invoke-WebRequest https://raw.githubusercontent.com/ALCops/rulebook-engine/main/scripts/New-RulebookOffLevel.ps1 -OutFile ../New-RulebookOffLevel.ps1
+Invoke-WebRequest https://raw.githubusercontent.com/ALCops/rulebook-engine/v1/scripts/New-RulebookOffLevel.ps1 -OutFile ../New-RulebookOffLevel.ps1
 ../New-RulebookOffLevel.ps1
 ```
 
@@ -169,7 +169,7 @@ Add an entry to `stages` and create `stages/<slug>.json` with the rules it chang
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/ALCops/rulebook-engine/main/schemas/ruleset.delta.schema.json",
+  "$schema": "https://raw.githubusercontent.com/ALCops/rulebook-engine/v1/schemas/ruleset.delta.schema.json",
   "name": "Rulebook stage Nightly",
   "description": "Stage nightly. Applied on top of every level where the level result is not None. Organization stage.",
   "rules": [

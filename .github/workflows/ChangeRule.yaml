@@ -82,7 +82,7 @@ jobs:
           Write-Host "Secret: $name, direct commit: $directCommit"
 
       - name: Change the rule
-        uses: ALCops/rulebook-engine/actions/ChangeRule@main
+        uses: ALCops/rulebook-engine/actions/ChangeRule@v1
         with:
           token: ${{ secrets[steps.settings.outputs.secretName] }}
           ruleId: ${{ inputs.ruleId }}

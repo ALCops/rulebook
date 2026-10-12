@@ -2,7 +2,7 @@
 
 The AL compiler, the Microsoft code cops and the ALCops analyzers gain new diagnostics with every release. Your rulebook decides what happens to them: the **Scan Diagnostics** workflow reads the newest packages every day, records every new diagnostic in your catalog and holds it back in the stages you choose (its *quarantine*) until you adopt it. It keeps one pull request with everything it found. With a policy that quarantines, a new rule does not reach your AL projects until you adopt it.
 
-> **Status:** written 2026-10-08 with the scan work package of the engine ([WP08, #10](https://github.com/ALCops/rulebook-engine/issues/10)). Everything below was observed in a live run on a scratch repository or is stated by the engine's contributor reference, [scan-mechanics.md](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/scan-mechanics.md), which also holds the run table. The scan writes with the same secret as the update: [ghtokenworkflow.md](ghtokenworkflow.md).
+> **Status:** written 2026-10-08 with the scan work package of the engine ([WP08, #10](https://github.com/ALCops/rulebook-engine/issues/10)). Everything below was observed in a live run on a scratch repository or is stated by the engine's contributor reference, [scan-mechanics.md](https://github.com/ALCops/rulebook-engine/blob/v1/docs/reference/scan-mechanics.md), which also holds the run table. The scan writes with the same secret as the update: [ghtokenworkflow.md](ghtokenworkflow.md).
 
 ## Contents
 

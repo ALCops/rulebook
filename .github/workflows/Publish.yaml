@@ -35,8 +35,8 @@ jobs:
 
       # Publish is a gate (D42): stale endpoints or any other error stop the run before anything is deployed.
       - name: Validate
-        uses: ALCops/rulebook-engine/actions/Validate@main
+        uses: ALCops/rulebook-engine/actions/Validate@v1
 
       - name: Publish
         id: publish
-        uses: ALCops/rulebook-engine/actions/Publish@main
+        uses: ALCops/rulebook-engine/actions/Publish@v1

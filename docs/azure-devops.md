@@ -2,7 +2,7 @@
 
 How a pipeline outside AL-Go for GitHub compiles against your rulebook: the ALOps compile task, BcContainerHelper, and a plain `alc` call. All three take the same two things: the path of the stage's skeleton file and the switch that allows its URL include.
 
-> **Status:** written 2026-10-10 with WP11 of the engine ([#13](https://github.com/ALCops/rulebook-engine/issues/13)). The ALOps inputs are taken from the ALOps documentation of `ALOpsAppCompiler@3` (as of its revision of 2026-03-03); the sample was not run. The BcContainerHelper parameters are taken from the BcContainerHelper source (`Run-AlPipeline`, `Compile-AppInBcContainer`, `Compile-AppWithBcCompilerFolder`). The `alc` command line was observed in the engine's [spike (c)](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/spikes/c-alc-on-ubuntu.md). The project-side facts are in [al-project.md](al-project.md).
+> **Status:** written 2026-10-10 with WP11 of the engine ([#13](https://github.com/ALCops/rulebook-engine/issues/13)). The ALOps inputs are taken from the ALOps documentation of `ALOpsAppCompiler@3` (as of its revision of 2026-03-03); the sample was not run. The BcContainerHelper parameters are taken from the BcContainerHelper source (`Run-AlPipeline`, `Compile-AppInBcContainer`, `Compile-AppWithBcCompilerFolder`). The `alc` command line was observed in the engine's [spike (c)](https://github.com/ALCops/rulebook-engine/blob/v1/docs/reference/spikes/c-alc-on-ubuntu.md). The project-side facts are in [al-project.md](al-project.md).
 
 ## Contents
 
@@ -83,7 +83,7 @@ In all three, `-enableExternalRulesets` adds `/enableexternalrulesets`. The cops
 
 ## 5. Plain alc
 
-**External rulesets are off by default on the command line, the opposite of VS Code.** Pass both switches. `$AL_BIN` is the folder of the `alc.dll` that runs; spike (c) shows how to find it ([recipe](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/spikes/c-alc-on-ubuntu.md#recipe)). The two switches belong to the compiler (`al compile` passes its arguments on to `alc`). Microsoft Learn does not list them, but documents the failure they guard against ([AL1033](https://learn.microsoft.com/dynamics365/business-central/dev-itpro/developer/diagnostics/diagnostic-al1033)); both were observed in spike (c):
+**External rulesets are off by default on the command line, the opposite of VS Code.** Pass both switches. `$AL_BIN` is the folder of the `alc.dll` that runs; spike (c) shows how to find it ([recipe](https://github.com/ALCops/rulebook-engine/blob/v1/docs/reference/spikes/c-alc-on-ubuntu.md#recipe)). The two switches belong to the compiler (`al compile` passes its arguments on to `alc`). Microsoft Learn does not list them, but documents the failure they guard against ([AL1033](https://learn.microsoft.com/dynamics365/business-central/dev-itpro/developer/diagnostics/diagnostic-al1033)); both were observed in spike (c):
 
 ```bash
 al compile /project:MyApp /packagecachepath:MyApp/.alpackages /out:MyApp/out.app \
@@ -102,7 +102,7 @@ al compile /project:MyApp /packagecachepath:MyApp/.alpackages /out:MyApp/out.app
 
 ## 6. When the endpoint fails
 
-When the compiler cannot load the endpoint (wrong URL, site down, external rulesets off, invalid JSON), it reports **AL1033** ("An error occurred while loading the included rule set file ...") and drops the whole ruleset. On the command line it does not go on with the analyzer defaults: `alc` prints the one error, writes no `.app` and exits 1, also when the failing URL is the include of a local skeleton (observed in [spike (a)](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/spikes/a-hosts-and-skeleton-include.md) and [spike (c)](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/spikes/c-alc-on-ubuntu.md)). So a pipeline that fails on a compiler error fails on AL1033 by itself; ALOps and BcContainerHelper run the same compiler (not observed with them).
+When the compiler cannot load the endpoint (wrong URL, site down, external rulesets off, invalid JSON), it reports **AL1033** ("An error occurred while loading the included rule set file ...") and drops the whole ruleset. On the command line it does not go on with the analyzer defaults: `alc` prints the one error, writes no `.app` and exits 1, also when the failing URL is the include of a local skeleton (observed in [spike (a)](https://github.com/ALCops/rulebook-engine/blob/v1/docs/reference/spikes/a-hosts-and-skeleton-include.md) and [spike (c)](https://github.com/ALCops/rulebook-engine/blob/v1/docs/reference/spikes/c-alc-on-ubuntu.md)). So a pipeline that fails on a compiler error fails on AL1033 by itself; ALOps and BcContainerHelper run the same compiler (not observed with them).
 
 ## 7. Check that it works
 

@@ -27,7 +27,7 @@ How an AL-Go for GitHub repository compiles against your rulebook: the skeleton 
 Run the init script in the app folder, the folder with `app.json` ([al-project.md](al-project.md) section 3), and delete the script afterwards:
 
 ```powershell
-Invoke-WebRequest https://raw.githubusercontent.com/ALCops/rulebook-engine/main/scripts/Get-RulebookSkeletons.ps1 -OutFile Get-RulebookSkeletons.ps1
+Invoke-WebRequest https://raw.githubusercontent.com/ALCops/rulebook-engine/v1/scripts/Get-RulebookSkeletons.ps1 -OutFile Get-RulebookSkeletons.ps1
 ./Get-RulebookSkeletons.ps1 -BaseUrl https://contoso.github.io/rulebook -Level strict
 ```
 
@@ -98,7 +98,7 @@ Remove the probe afterwards. If the log shows the default instead, the ruleset w
 
 ## 7. When the endpoint fails
 
-When the compiler cannot load the endpoint (wrong URL, site down, external rulesets off, invalid JSON), it reports **AL1033** and drops the whole ruleset, your project exceptions included. On the command line `alc` does not go on with the analyzer defaults: it writes no `.app` and ends with exit code 1, also when the failing URL is the include of a local skeleton (observed in [spike (a)](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/spikes/a-hosts-and-skeleton-include.md) and [spike (c)](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/spikes/c-alc-on-ubuntu.md)). AL-Go compiles with the same compiler (through BcContainerHelper's `Compile-AppInBcContainer` or `Compile-AppWithBcCompilerFolder`, or `altool` with the preview workspace compilation), so the compile step fails and the build fails with it. That follows from the compiler facts; it was not observed in an AL-Go run.
+When the compiler cannot load the endpoint (wrong URL, site down, external rulesets off, invalid JSON), it reports **AL1033** and drops the whole ruleset, your project exceptions included. On the command line `alc` does not go on with the analyzer defaults: it writes no `.app` and ends with exit code 1, also when the failing URL is the include of a local skeleton (observed in [spike (a)](https://github.com/ALCops/rulebook-engine/blob/v1/docs/reference/spikes/a-hosts-and-skeleton-include.md) and [spike (c)](https://github.com/ALCops/rulebook-engine/blob/v1/docs/reference/spikes/c-alc-on-ubuntu.md)). AL-Go compiles with the same compiler (through BcContainerHelper's `Compile-AppInBcContainer` or `Compile-AppWithBcCompilerFolder`, or `altool` with the preview workspace compilation), so the compile step fails and the build fails with it. That follows from the compiler facts; it was not observed in an AL-Go run.
 
 Should a build ever pass with AL1033 in its log, treat that as a failure by hand: AL-Go's script override `CompileAppInBcContainer.ps1` in `.AL-Go` replaces the compile call ([script overrides](https://github.com/microsoft/AL-Go/blob/main/Scenarios/settings.md#scriptoverrides)), and a wrapper there can throw when the compiler output contains `AL1033`. Microsoft warns that script overrides are tied to `Run-AlPipeline` and will change ([Customizing AL-Go](https://github.com/microsoft/AL-Go/blob/main/Scenarios/CustomizingALGoForGitHub.md#adding-custom-scripts)), and workspace compilation does not call that override, so use this only if you see the case.
 

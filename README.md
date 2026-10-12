@@ -43,7 +43,7 @@ Copy the skeleton for your level, one per stage, into the project as `.rulebook/
 The init script does the download for you: it reads the levels and stages from `<baseUrl>/rulebook.json` and writes one file per stage into `.rulebook/` of the current folder (PowerShell 7):
 
 ```powershell
-Invoke-WebRequest https://raw.githubusercontent.com/ALCops/rulebook-engine/main/scripts/Get-RulebookSkeletons.ps1 -OutFile Get-RulebookSkeletons.ps1
+Invoke-WebRequest https://raw.githubusercontent.com/ALCops/rulebook-engine/v1/scripts/Get-RulebookSkeletons.ps1 -OutFile Get-RulebookSkeletons.ps1
 ./Get-RulebookSkeletons.ps1 -BaseUrl https://contoso.github.io/rulebook -Level strict
 ```
 

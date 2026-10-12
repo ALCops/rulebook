@@ -2,7 +2,7 @@
 
 Your AL projects fetch their rules from URLs. This page explains where those URLs come from: the Publish workflow puts your endpoints, the skeletons, `rulebook.json` and an index page on GitHub Pages and then checks that every URL serves what you committed.
 
-> **Status:** written 2026-10-06 with the Publish work package of the engine ([WP05, #7](https://github.com/ALCops/rulebook-engine/issues/7)). GitHub Pages is the only host available in version 1. The contributor reference, with the preflight messages and the live test run, is the engine's [publish-targets.md](https://github.com/ALCops/rulebook-engine/blob/main/docs/reference/publish-targets.md).
+> **Status:** written 2026-10-06 with the Publish work package of the engine ([WP05, #7](https://github.com/ALCops/rulebook-engine/issues/7)). GitHub Pages is the only host available in version 1. The contributor reference, with the preflight messages and the live test run, is the engine's [publish-targets.md](https://github.com/ALCops/rulebook-engine/blob/v1/docs/reference/publish-targets.md).
 
 ## Contents
 

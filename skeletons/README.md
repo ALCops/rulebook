@@ -11,7 +11,7 @@ The copies here keep the placeholder `{BASEURL}`, which the compiler cannot fetc
 One file per stage in `.rulebook/`, named after the stage: `.rulebook/default.ruleset.json`, `.rulebook/ci.ruleset.json`, `.rulebook/vnext.ruleset.json`. The init script downloads the published skeletons of one level (PowerShell 7):
 
 ```powershell
-Invoke-WebRequest https://raw.githubusercontent.com/ALCops/rulebook-engine/main/scripts/Get-RulebookSkeletons.ps1 -OutFile Get-RulebookSkeletons.ps1
+Invoke-WebRequest https://raw.githubusercontent.com/ALCops/rulebook-engine/v1/scripts/Get-RulebookSkeletons.ps1 -OutFile Get-RulebookSkeletons.ps1
 ./Get-RulebookSkeletons.ps1 -BaseUrl https://contoso.github.io/rulebook -Level strict
 ```
 
