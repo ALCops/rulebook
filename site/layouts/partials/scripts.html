@@ -1,7 +1,15 @@
+{{- with resources.Get "js/shell.js" }}
+<script src="{{ .RelPermalink }}" defer></script>
+{{- end }}
+{{- /* The landing page has no grid, so matrix.js is not loaded there. */}}
+{{- if not .IsHome }}
 {{- with resources.Get "js/matrix.js" }}
 <script src="{{ .RelPermalink }}" defer></script>
 {{- end }}
+{{- end }}
+{{- /* The pure modules cart.mjs imports: published at their fixed paths, without a script tag of their own. */}}
 {{- with resources.Get "js/cart-core.mjs" }}{{ $_ := .Publish }}{{ end }}
+{{- with resources.Get "js/drawer-core.mjs" }}{{ $_ := .Publish }}{{ end }}
 {{- with resources.Get "js/cart.mjs" }}
 <script type="module" src="{{ .RelPermalink }}"></script>
 {{- end }}
